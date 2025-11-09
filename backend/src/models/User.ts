@@ -1,6 +1,18 @@
-import mongoose, { Schema } from "mongoose";
-import { IUser } from "../user/user.interface";
+import mongoose, { Schema,Document } from "mongoose";
 import bcrypt from "bcryptjs"
+
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  role: "user" | "admin";
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+
 
 const userSchema = new Schema<IUser>(
   {
@@ -26,6 +38,21 @@ const userSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
+userSchema.pre('save', async function (next) {
+  // Only hash if password is modified
+  if (!this.isModified('password')) {
+    return next();
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error: any) {
+    next(error);
+  }
+});
 
 
 userSchema.methods.comparePassword = async function (

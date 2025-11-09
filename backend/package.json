@@ -6,7 +6,8 @@
     "build" :"tsc",
     "start": "node dist/server.js",
     "dev":"nodemon --exec ts-node src/server.ts",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "seed": "ts-node src/utils/seedQuestions.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",

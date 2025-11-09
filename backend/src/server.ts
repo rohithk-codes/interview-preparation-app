@@ -3,7 +3,8 @@ import dotenv from "dotenv"
 import cors from "cors"
 import connectDB from "./config/db"
 
-import authRoute from "./routes/auth"
+import authRoutes from "./routes/auth"
+import questionRoutes from './routes/question';
 
 dotenv.config()
 
@@ -14,7 +15,7 @@ app.use(express.json());
 
 connectDB();
 
-app.use('/api/auth',authRoute)
+app.use('/api/auth',authRoutes)
 
 app.get("/",(req:Request,res:Response)=>{
     res.json({message:"Interview prepration app is running"})
