@@ -1,5 +1,5 @@
-import { BaseRepository } from './base.repository';
-import Question, { IQuestion } from '../models/Question';
+import { BaseRepository } from "./base.repository";
+import Question, { IQuestion } from "../models/Question";
 
 export interface QuestionFilters {
   difficulty?: string;
@@ -40,11 +40,11 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
 
     const [questions, total] = await Promise.all([
       Question.find(query)
-        .select('-solution -testCases')
+        .select("-solution -testCases")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pagination.limit),
-      Question.countDocuments(query)
+      Question.countDocuments(query),
     ]);
 
     return { questions, total };
@@ -53,13 +53,13 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
   // Get question by ID without solution
   async findByIdPublic(id: string): Promise<IQuestion | null> {
     return await Question.findById(id)
-      .select('-solution')
-      .populate('createdBy', 'name email');
+      .select("-solution")
+      .populate("createdBy", "name email");
   }
 
-  // Get question by ID with solution (for admin or after solving)
+  // Get question by ID with solution for admin or after solving
   async findByIdWithSolution(id: string): Promise<IQuestion | null> {
-    return await Question.findById(id).populate('createdBy', 'name email');
+    return await Question.findById(id).populate("createdBy", "name email");
   }
 
   // Check if title exists
@@ -74,17 +74,17 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
 
   // Get all unique topics
   async getDistinctTopics(): Promise<string[]> {
-    return await Question.distinct('topic');
+    return await Question.distinct("topic");
   }
 
   // Get questions by difficulty
   async findByDifficulty(difficulty: string): Promise<IQuestion[]> {
-    return await Question.find({ difficulty }).select('-solution -testCases');
+    return await Question.find({ difficulty }).select("-solution -testCases");
   }
 
   // Get questions by topic
   async findByTopic(topic: string): Promise<IQuestion[]> {
-    return await Question.find({ topic }).select('-solution -testCases');
+    return await Question.find({ topic }).select("-solution -testCases");
   }
 
   // Get difficulty-wise count
@@ -94,9 +94,9 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
     Hard: number;
   }> {
     const [easy, medium, hard] = await Promise.all([
-      Question.countDocuments({ difficulty: 'Easy' }),
-      Question.countDocuments({ difficulty: 'Medium' }),
-      Question.countDocuments({ difficulty: 'Hard' })
+      Question.countDocuments({ difficulty: "Easy" }),
+      Question.countDocuments({ difficulty: "Medium" }),
+      Question.countDocuments({ difficulty: "Hard" }),
     ]);
 
     return { Easy: easy, Medium: medium, Hard: hard };
@@ -107,20 +107,20 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
     return await Question.aggregate([
       {
         $group: {
-          _id: '$topic',
-          count: { $sum: 1 }
-        }
+          _id: "$topic",
+          count: { $sum: 1 },
+        },
       },
       {
         $project: {
           _id: 0,
-          topic: '$_id',
-          count: 1
-        }
+          topic: "$_id",
+          count: 1,
+        },
       },
       {
-        $sort: { count: -1 }
-      }
+        $sort: { count: -1 },
+      },
     ]);
   }
 
@@ -148,5 +148,5 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
   }
 }
 
-// Export singleton instance
+// Export instance
 export default new QuestionRepository();

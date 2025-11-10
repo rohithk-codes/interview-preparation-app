@@ -193,5 +193,5 @@ export class QuestionService {
   }
 }
 
-// Export singleton instance
+// Export instance
 export default new QuestionService();

@@ -1,5 +1,5 @@
-import { BaseRepository } from './base.repository';
-import User, { IUser } from '../models/User';
+import { BaseRepository } from "./base.repository";
+import User, { IUser } from "../models/User";
 
 export class UserRepository extends BaseRepository<IUser> {
   constructor() {
@@ -11,9 +11,9 @@ export class UserRepository extends BaseRepository<IUser> {
     return await User.findOne({ email });
   }
 
-  // Find user by email with password field (for login)
+  // For login user with password
   async findByEmailWithPassword(email: string): Promise<IUser | null> {
-    return await User.findOne({ email }).select('+password');
+    return await User.findOne({ email }).select("+password");
   }
 
   // Check if email exists

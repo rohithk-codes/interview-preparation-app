@@ -16,6 +16,7 @@ app.use(express.json());
 connectDB();
 
 app.use('/api/auth',authRoutes)
+app.use('/api/questions', questionRoutes);
 
 app.get("/",(req:Request,res:Response)=>{
     res.json({message:"Interview prepration app is running"})

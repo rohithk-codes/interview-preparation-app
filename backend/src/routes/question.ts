@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   getAllQuestions,
   getQuestionById,
@@ -6,26 +6,25 @@ import {
   updateQuestion,
   deleteQuestion,
   getTopics,
-  getQuestionStats
-} from '../controllers/questionController';
-import { protect, authorize } from '../middleware/auth';
+  getQuestionStats,
+} from "../controllers/questionController";
+import { protect, authorize } from "../middleware/auth";
 
 const router = express.Router();
 
-// Public stats and topics (protected but accessible to all users)
-router.get('/stats', protect, getQuestionStats);
-router.get('/topics', protect, getTopics);
+router.get("/stats", protect, getQuestionStats);
+router.get("/topics", protect, getTopics);
 
 // Question CRUD
 router
-  .route('/')
-  .get(protect, getAllQuestions)
-  .post(protect, authorize('admin'), createQuestion);
+  .route("/")
+  .get(getAllQuestions)
+  .post(protect, authorize("admin"), createQuestion);
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(protect, getQuestionById)
-  .put(protect, authorize('admin'), updateQuestion)
-  .delete(protect, authorize('admin'), deleteQuestion);
+  .put(protect, authorize("admin"), updateQuestion)
+  .delete(protect, authorize("admin"), deleteQuestion);
 
 export default router;
