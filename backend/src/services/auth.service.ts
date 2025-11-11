@@ -24,7 +24,7 @@ export interface AuthResponse {
 }
 
 export class AuthService {
-  // Generate JWT token
+ 
   private generateToken(userId: string): string {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
       expiresIn: "7d",
@@ -104,5 +104,5 @@ export class AuthService {
   }
 }
 
-// Export instance
+
 export default new AuthService();

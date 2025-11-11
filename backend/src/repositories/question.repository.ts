@@ -148,5 +148,5 @@ export class QuestionRepository extends BaseRepository<IQuestion> {
   }
 }
 
-// Export instance
+
 export default new QuestionRepository();

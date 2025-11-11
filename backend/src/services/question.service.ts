@@ -40,6 +40,7 @@ export interface UpdateQuestionDTO {
 }
 
 export class QuestionService {
+  
   // Get all questions with filters
   async getAllQuestions(
     filters: QuestionFilters,
@@ -83,7 +84,7 @@ export class QuestionService {
     return question;
   }
 
-  // Get question with solution (after user solves it or for admin)
+ 
   async getQuestionWithSolution(questionId: string) {
     const question = await questionRepository.findByIdWithSolution(questionId);
 
@@ -96,7 +97,7 @@ export class QuestionService {
 
   // Create new question
   async createQuestion(data: CreateQuestionDTO): Promise<IQuestion> {
-    // Check if title already exists
+   
     const titleExists = await questionRepository.titleExists(data.title);
     if (titleExists) {
       throw new Error('A question with this title already exists');
@@ -110,12 +111,12 @@ export class QuestionService {
     return await questionRepository.create(data as any);
   }
 
-  // Update question
+ 
   async updateQuestion(
     questionId: string,
     data: UpdateQuestionDTO
   ): Promise<IQuestion> {
-    // Check if question exists
+    
     const existingQuestion = await questionRepository.findById(questionId);
     if (!existingQuestion) {
       throw new Error('Question not found');
@@ -141,7 +142,7 @@ export class QuestionService {
     return updatedQuestion;
   }
 
-  // Delete question
+  
   async deleteQuestion(questionId: string): Promise<void> {
     const deleted = await questionRepository.delete(questionId);
     if (!deleted) {
@@ -170,7 +171,7 @@ export class QuestionService {
     };
   }
 
-  // Get questions by difficulty
+  
   async getQuestionsByDifficulty(difficulty: string): Promise<IQuestion[]> {
     if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) {
       throw new Error('Invalid difficulty level');
@@ -179,12 +180,12 @@ export class QuestionService {
     return await questionRepository.findByDifficulty(difficulty);
   }
 
-  // Get questions by topic
+  
   async getQuestionsByTopic(topic: string): Promise<IQuestion[]> {
     return await questionRepository.findByTopic(topic);
   }
 
-  // Record submission (to be called from submission service)
+  
   async recordSubmission(
     questionId: string,
     isSuccessful: boolean
@@ -193,5 +194,5 @@ export class QuestionService {
   }
 }
 
-// Export instance
+
 export default new QuestionService();

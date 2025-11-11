@@ -6,17 +6,17 @@ export class UserRepository extends BaseRepository<IUser> {
     super(User);
   }
 
-  // Find user by email
+  
   async findByEmail(email: string): Promise<IUser | null> {
     return await User.findOne({ email });
   }
 
-  // For login user with password
+ 
   async findByEmailWithPassword(email: string): Promise<IUser | null> {
     return await User.findOne({ email }).select("+password");
   }
 
-  // Check if email exists
+ 
   async emailExists(email: string): Promise<boolean> {
     const count = await User.countDocuments({ email });
     return count > 0;
@@ -27,7 +27,7 @@ export class UserRepository extends BaseRepository<IUser> {
     return await User.find({ role });
   }
 
-  // Update user profile
+  
   async updateProfile(
     userId: string,
     data: { name?: string; email?: string }
@@ -40,5 +40,4 @@ export class UserRepository extends BaseRepository<IUser> {
   }
 }
 
-// Export singleton instance
 export default new UserRepository();

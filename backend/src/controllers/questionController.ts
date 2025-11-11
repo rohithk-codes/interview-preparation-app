@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import questionService from "../services/question.service";
 
-export const getAllQuestionss = async (
+export const getAllQuestions = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -39,81 +39,26 @@ export const getAllQuestionss = async (
   }
 };
 
-export const getAllQuesitons = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const {
-      difficulty,
-      search,
-      query,
-      topic,
-      page = 1,
-      limit = 10,
-    } = req.query;
-
-    //Build filter options
-    const filters: Record<string, string> = {};
-    if (difficulty) filters.difficulty = difficulty as string;
-    if (topic) filters.topic = topic as string;
-    if (search) filters.search = search as string;
-
-    //Parse pagination values
-    const currentPage = parseInt(page as string, 10);
-    const pageLimit = parseInt(limit as string, 10);
-
-    //Fetch data from service
-    const result = await questionService.getAllQuestions(filters, {
-      page: currentPage,
-      limit: pageLimit,
-    });
-
-    res.status(200).json({
-      success: true,
-      totalQuestions: result.total,
-      currentPage: result.page,
-      totalPages: result.pages,
-      count: result.questions.length,
-      questions: result.questions,
-    });
-
-  } catch (error: any) {
-    console.error("Error fetching questions:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong while fetching questions.",
-      error: error.message,
-    });
-  }
-};
-
 export const getQuestionById = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const question = await questionService.getQuestionById(req.params.id);
+
+    const {id} = req.params
+    const question = await questionService.getQuestionById(id);
 
     res.status(200).json({
       success: true,
       data: question,
     });
-  } catch (error: any) {
-    console.error("Get question by ID error:", error);
-
-    if (error.message === "Question not found") {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-      return;
-    }
+  } catch (error) {
+ console.error('Error fetching question by ID:', error);
 
     res.status(500).json({
       success: false,
-      message: "Error fetching question",
-      error: error.message,
+      message: 'Something went wrong while fetching the question.',
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
@@ -123,19 +68,20 @@ export const createQuestion = async (
   res: Response
 ): Promise<void> => {
   try {
+    const {body,user} = req
     const questionData = {
-      ...req.body,
-      createdBy: req.user?.id,
+      ...body,
+      createdBy: user?.id,
     };
 
-    const question = await questionService.createQuestion(questionData);
+    const newQuestion = await questionService.createQuestion(questionData);
 
     res.status(201).json({
       success: true,
       message: "Question created successfully",
-      data: question,
+      data: newQuestion,
     });
-  } catch (error: any) {
+  } catch (error:any) {
     console.error("Create question error:", error);
 
     if (
@@ -259,6 +205,54 @@ export const getQuestionStats = async (
     res.status(500).json({
       success: false,
       message: "Error fetching question statistics",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllQuestionss = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      difficulty,
+      search,
+      topic,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    //Build filter options
+    const filters: Record<string, string> = {};
+    if (difficulty) filters.difficulty = difficulty as string;
+    if (topic) filters.topic = topic as string;
+    if (search) filters.search = search as string;
+
+    //Parse pagination values
+    const currentPage = parseInt(page as string, 10);
+    const pageLimit = parseInt(limit as string, 10);
+
+    //Fetch data from service
+    const result = await questionService.getAllQuestions(filters, {
+      page: currentPage,
+      limit: pageLimit,
+    });
+
+    res.status(200).json({
+      success: true,
+      totalQuestions: result.total,
+      currentPage: result.page,
+      totalPages: result.pages,
+      count: result.questions.length,
+      questions: result.questions,
+    });
+
+  } catch (error:any) {
+    console.error("Error fetching questions:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching questions.",
       error: error.message,
     });
   }
