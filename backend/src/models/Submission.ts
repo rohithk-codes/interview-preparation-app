@@ -8,7 +8,7 @@ export interface ITestResult {
   expectedOutput: string;
   actualOutput: string;
   executionTime?: number;
-  error: string;
+  error?: string;
 }
 
 //Submission status type
