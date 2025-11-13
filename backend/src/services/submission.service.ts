@@ -31,9 +31,9 @@ export class SubmissionService {
       passedTestCases: 0,
     } as any);
 
-    //Execute code asynchronousl
+    //Execute code asynchronously
     this.executeCodeAsync(
-      submission.id.toString(),
+      submission._id.toString(),
       question.testCases,
       data.code,
       data.language
@@ -62,9 +62,7 @@ export class SubmissionService {
 
       //Final status
       const allPassed = executionResult.totalPassed === testCases.length;
-      const status = (SubmissionStatus = allPassed
-        ? "Accepted"
-        : "Wrong Answer");
+      const status: SubmissionStatus = allPassed ? "Accepted" : "Wrong Answer";
 
       const hasErrors = executionResult.testResults.some((tr) => tr.error);
       const finalStatus = hasErrors
@@ -150,4 +148,64 @@ export class SubmissionService {
   ): Promise<ISubmission[]> {
     return await submissionRepository.getRecentSubmission(userId, limit);
   }
+
+  //Solved quesiton IDs for a user
+  async getSolvedQuestionIds(userId: string): Promise<string[]> {
+    return await submissionRepository.getSolvedQuestionIds(userId);
+  }
+
+  //Get submission for a question admin only
+  async getQuestionSubmissions(
+    quesitonId: string,
+    limit: number = 50
+  ): Promise<ISubmission[]> {
+    return await submissionRepository.findByQuestionId(quesitonId, limit);
+  }
+
+  //Run code without submitting test run
+  async runCode(
+    quesitonId: string,
+    code: string,
+    language: string
+  ): Promise<{ 
+    testResults: any[];
+  totalPassed:number;
+totalFailed:number;
+executionTime:number;
+ }>{
+  //Get quesiton with public test case only
+  const quesiton = await questionRepository.findByIdPublic(quesitonId)
+  if(!quesiton){
+    throw new Error("Question not found")
+  }
+  
+  //Get only public test cases
+  const publicTestCases = quesiton.testCases.filter(tc=>!tc.isHidden)
+
+  if(publicTestCases.length===0){
+    throw new Error("No public test cases available")
+  }
+
+  //Execute code
+  if(language==="javascript"){
+    return await codeExecutor.executeJavaScritp(code,publicTestCases)
+  }else{
+    throw new Error(`Language ${language} not yet supported`)
+  }
+ }
+
+ //Delete user's submissions for a question
+ async deleteUserQuestionSubmission(userId:string,quesitonId:string,):Promise<number>{
+  const submissions = await submissionRepository.findByUserAndQuestion(userId,quesitonId)
+
+  let deletedCount = 0 
+  for(let submission of submissions){
+    const deleted = await submissionRepository.delete(submission._id.toString())
+    if(deleted)deletedCount++
+  }
+  return deletedCount
+ }
 }
+
+
+export default new SubmissionService()
