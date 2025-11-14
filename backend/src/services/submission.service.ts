@@ -33,7 +33,7 @@ export class SubmissionService {
 
     //Execute code asynchronously
     this.executeCodeAsync(
-      submission._id.toString(),
+      submission.id.toString(),
       question.testCases,
       data.code,
       data.language
@@ -130,9 +130,9 @@ export class SubmissionService {
   //Check if user has solved a question
   async hasUserSolvedQuestion(
     userId: string,
-    quesitonId: string
+    questionId: string
   ): Promise<boolean> {
-    return await submissionRepository.hasUserSolvedQuestion(userId, quesitonId);
+    return await submissionRepository.hasUserSolvedQuestion(userId, questionId);
   }
 
   //User statistics
@@ -142,29 +142,29 @@ export class SubmissionService {
   }
 
   //Recent submissions for dashboard
-  async getRecentSubmission(
+  async getRecentSubmissions(
     userId: string,
     limit: number = 10
   ): Promise<ISubmission[]> {
     return await submissionRepository.getRecentSubmission(userId, limit);
   }
 
-  //Solved quesiton IDs for a user
+  //Solved question IDs for a user
   async getSolvedQuestionIds(userId: string): Promise<string[]> {
     return await submissionRepository.getSolvedQuestionIds(userId);
   }
 
   //Get submission for a question admin only
   async getQuestionSubmissions(
-    quesitonId: string,
+    questionId: string,
     limit: number = 50
   ): Promise<ISubmission[]> {
-    return await submissionRepository.findByQuestionId(quesitonId, limit);
+    return await submissionRepository.findByQuestionId(questionId, limit);
   }
 
   //Run code without submitting test run
   async runCode(
-    quesitonId: string,
+    questionId: string,
     code: string,
     language: string
   ): Promise<{ 
@@ -173,14 +173,15 @@ export class SubmissionService {
 totalFailed:number;
 executionTime:number;
  }>{
-  //Get quesiton with public test case only
-  const quesiton = await questionRepository.findByIdPublic(quesitonId)
-  if(!quesiton){
+  //Get question with public test case only
+  const question = await questionRepository.findByIdPublic(questionId)
+  
+  if(!question){
     throw new Error("Question not found")
   }
   
   //Get only public test cases
-  const publicTestCases = quesiton.testCases.filter(tc=>!tc.isHidden)
+  const publicTestCases = question.testCases.filter(tc=>!tc.isHidden)
 
   if(publicTestCases.length===0){
     throw new Error("No public test cases available")
@@ -195,12 +196,12 @@ executionTime:number;
  }
 
  //Delete user's submissions for a question
- async deleteUserQuestionSubmission(userId:string,quesitonId:string,):Promise<number>{
-  const submissions = await submissionRepository.findByUserAndQuestion(userId,quesitonId)
+ async deleteUserQuestionSubmission(userId:string,questionId:string,):Promise<number>{
+  const submissions = await submissionRepository.findByUserAndQuestion(userId,questionId)
 
   let deletedCount = 0 
   for(let submission of submissions){
-    const deleted = await submissionRepository.delete(submission._id.toString())
+    const deleted = await submissionRepository.delete(submission.id.toString())
     if(deleted)deletedCount++
   }
   return deletedCount

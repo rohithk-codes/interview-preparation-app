@@ -20,6 +20,7 @@ export class CodeExecutor {
       const testCase = testCases[i];
       try {
         const result = await this.runTestCase(code, testCase, i);
+       
         testResults.push(result);
 
         if (result.passed) {
@@ -63,13 +64,20 @@ export class CodeExecutor {
 
       //Execute the code
       const actualOutput = await this.safeEval(wrappedCode);
+      
       const executionTime = Date.now() - startTime;
 
       //Compare outputs
+      
+
       const expected = this.normalizeOutput(testCase.expectedOutput);
+            console.log("actual",expected)
+
       const actual = this.normalizeOutput(actualOutput);
+      console.log("actual",actual)
       const passed = expected === actual;
 
+     
       return {
         testCaseIndex: index,
         passed,
@@ -99,7 +107,7 @@ export class CodeExecutor {
 
     //Extract function name from code
     const functionName = this.extractFunctionName(code);
-
+      
     if (!functionName) {
       throw new Error("Could not find function in code");
     }
@@ -107,10 +115,9 @@ export class CodeExecutor {
     // Create wrapped code
     return `
       ${code}
-      
       // Execute function with test inputs
       const result = ${functionName}(${inputs});
-      result;
+      return result;
     `;
   }
 
@@ -127,11 +134,13 @@ export class CodeExecutor {
   private extractFunctionName(code: string): string | null {
     // Match: function functionName
     const patterns = [
-      /function\s+(\w+)\s*\(/,
-      /const\s+(\w+)\s*=\s*function/,
-      /const\s+(\w+)\s*=\s*\(/,
-      /let\s+(\w+)\s*=\s*function/,
-      /var\s+(\w+)\s*=\s*function/,
+      /function\s+(\w+)\s*\(/,                   
+    /const\s+(\w+)\s*=\s*function/,             
+    /const\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,      
+    /let\s+(\w+)\s*=\s*function/,
+    /let\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,        
+    /var\s+(\w+)\s*=\s*function/,
+    /var\s+(\w+)\s*=\s*\([^)]*\)\s*=>/ 
     ];
 
     for (const pattern of patterns) {
@@ -144,6 +153,7 @@ export class CodeExecutor {
   }
 
   // Safe eval with timeout
+
   private async safeEval(code: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -166,11 +176,45 @@ export class CodeExecutor {
     });
   }
 
+//   private async safeEval(code: string): Promise<any> {
+//   return new Promise((resolve, reject) => {
+//     let completed = false;
+    
+//     const timeout = setTimeout(() => {
+//       if (!completed) {
+//         completed = true;
+//         reject(new Error("Time Limit Exceeded"));
+//       }
+//     }, 5000);
+    
+//     try {
+//       const func = new Function(`'use strict'; return (function(){ ${code} })();`);
+//       const result = func();
+      
+//       if (!completed) {
+//         completed = true;
+//         clearTimeout(timeout);
+//         resolve(result);
+//       }
+//     } catch (error: any) {
+//       if (!completed) {
+//         completed = true;
+//         clearTimeout(timeout);
+//         reject(error);
+//       }
+//     }
+//   });
+// }
+
+
   //Normalise output for comparison
   private normalizeOutput(output: string): string {
-    // Remove spaces, quotes, and normalize formatting
-    return output.replace(/\s+/g, "").replace(/['"]/g, "").toLowerCase().trim();
-  }
+  return output
+    .trim()                    // ✅ First remove leading/trailing spaces
+    .replace(/\s+/g, "")       // Then remove all spaces
+    .replace(/['"]/g, "")      // Remove quotes
+    .toLowerCase();            // Convert to lowercase
+}
 
   //For execute python code
   async executePython(
