@@ -1,14 +1,43 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+  Route,
+} from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SignupForm } from "./pages/Signup";
+import { LoginForm } from "./pages/Login";
 
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route
+            path="/signup"
+            element={
+              <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+                <div className="w-full max-w-sm md:max-w-4xl">
+                  <SignupForm />
+                </div>
+              </div>
+            }
+          />
 
-  const App = ()=>{
-
-return(
-  <div>
-
-  <button className="bg-amber-600">Clickme</button>
-  </div>
-)
-
+          <Route
+            path="/login"
+            element={
+              <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+                <div className="flex w-full max-w-sm flex-col gap-6">
+                  <LoginForm />
+                </div>
+              </div>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
