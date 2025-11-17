@@ -35,12 +35,11 @@ function App() {
             }
           />
         </Routes>
-<<<<<<< HEAD
+
 
         <Route path="/" element={<Navigate to="/login" replace/>}/>
         <Route path="*" element={<Navigate to="/login" replace/>}/>
-=======
->>>>>>> 6dcae7d4016ed4154fe2d7a5c5105ab2b15c9a29
+
       </Router>
     </AuthProvider>
   );
