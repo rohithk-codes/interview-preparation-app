@@ -35,6 +35,9 @@ function App() {
             }
           />
         </Routes>
+
+        <Route path="/" element={<Navigate to="/login" replace/>}/>
+        <Route path="*" element={<Navigate to="/login" replace/>}/>
       </Router>
     </AuthProvider>
   );

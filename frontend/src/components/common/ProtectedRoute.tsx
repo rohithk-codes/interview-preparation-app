@@ -1,16 +1,18 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
   requireAdmin?: boolean;
 }
 
-function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
+function ProtectedRoute({
+  children,
+  requireAdmin = false,
+}: ProtectedRouteProps) {
   const { isAuthenticated, user, loading } = useAuth();
 
-  // Show loading spinner while checking auth
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -19,17 +21,14 @@ function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps)
     );
   }
 
-  //  Not logged in → redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  //  Route requires admin but user is not admin
   if (requireAdmin && user?.role !== "admin") {
     return <Navigate to="/questions" replace />;
   }
 
- 
   return children;
 }
 

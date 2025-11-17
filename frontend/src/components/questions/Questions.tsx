@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import Layout from '../components/common/Layout';
-import QuestionCard from '../components/questions/QuestionCard';
-import QuestionFilters from '../components/questions/QuestionFilters';
-import { Question, QuestionFilters as FilterType } from '../types';
-import apiService from '../services/api';
-import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Layout from "../common/Layout";
+import QuestionCard from "./QuestionCard";
+import QuestionFilters from "./QuestionFilters";
+import type { Question, QuestionFilters as FileType } from "../../types";
+import apiService from "../../services/api";
+import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
-const Questions: React.FC = () => {
+const Questions = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [solvedQuestionIds, setSolvedQuestionIds] = useState<Set<string>>(new Set());
+  const [solvedQuestionIds, setSolvedQuestionIds] = useState<Set<string>>(
+    new Set()
+  );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const [filters, setFilters] = useState<FilterType>({
-    difficulty: '',
-    topic: '',
-    search: '',
-    status: 'all'
+  const [filters, setFilters] = useState<FileType>({
+    difficulty: "",
+    topic: "",
+    search: "",
+    status: "all",
   });
 
   useEffect(() => {
@@ -32,12 +34,11 @@ const Questions: React.FC = () => {
 
   const loadQuestions = async () => {
     setLoading(true);
-    setError('');
-
+    setError("");
     try {
       const params: any = {
         page: currentPage,
-        limit: 10
+        limit: 10,
       };
 
       if (filters.difficulty) params.difficulty = filters.difficulty;
@@ -46,58 +47,55 @@ const Questions: React.FC = () => {
 
       const response = await apiService.getQuestions(params);
 
-      if (response.success) {
-        let filteredQuestions = response.data;
-
-        // Filter by solved/unsolved status
-        if (filters.status === 'solved') {
-          filteredQuestions = filteredQuestions.filter(q => 
-            solvedQuestionIds.has(q._id)
-          );
-        } else if (filters.status === 'unsolved') {
+      if(response.success){
+      let filteredQuestions = response.data
+      if (filters.status === "solved") {
+        filteredQuestions = filteredQuestions.filter(
+          (q) => !solvedQuestionIds.has(q._id)
+        );
+      }else if (filters.status === 'unsolved') {
           filteredQuestions = filteredQuestions.filter(q => 
             !solvedQuestionIds.has(q._id)
           );
         }
+        setQuestions(filteredQuestions)
+        setTotalPages(response.pages)
+        setTotal(response.total)
 
-        setQuestions(filteredQuestions);
-        setTotalPages(response.pages);
-        setTotal(response.total);
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load questions');
-    } finally {
-      setLoading(false);
+    }
+    } catch (error:any) {
+        setError(error.response?.data?.message || "Failed to load questions")
+    }finally{
+        setLoading(false)
     }
   };
 
-  const loadSolvedQuestions = async () => {
-    try {
-      const response = await apiService.getUserSubmissions();
-      if (response.success && response.data) {
-        const solved = new Set(
-          response.data
-            .filter(sub => sub.status === 'Accepted')
-            .map(sub => typeof sub.questionId === 'string' ? sub.questionId : sub.questionId._id)
-        );
-        setSolvedQuestionIds(solved);
-      }
-    } catch (error) {
-      console.error('Failed to load solved questions:', error);
+  const loadSolvedQuestions = async ()=>{
+    try{
+        const response = await apiService.getUserSubmissions()
+        if(response.success && response.data){
+            const solved = new Set(
+                response.data
+                .filter(sub=> sub.status === "Accepted")
+                .map(sub=>typeof sub.questionId === "string" ? sub.questionId:sub.questionId._id)
+            )
+            setSolvedQuestionIds(solved)
+        }
+    }catch(error){
+        console.error("Failed to load solved question",error)
     }
-  };
+  }
 
-  const handleFilterChange = (newFilters: FilterType) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
-  };
+  const handleFilterChange = (newFilters:FileType)=>{
+    setFilters(newFilters)
+    setCurrentPage(1)
+  }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  return (
+  const handlePageChange = (page:number)=>{
+    setCurrentPage(page)
+    window.scrollTo({top:0,behavior:"smooth"})
+  }
+ return (
     <Layout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
