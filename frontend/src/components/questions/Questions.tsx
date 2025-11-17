@@ -47,60 +47,64 @@ const Questions = () => {
 
       const response = await apiService.getQuestions(params);
 
-      if(response.success){
-      let filteredQuestions = response.data
-      if (filters.status === "solved") {
-        filteredQuestions = filteredQuestions.filter(
-          (q) => !solvedQuestionIds.has(q._id)
-        );
-      }else if (filters.status === 'unsolved') {
-          filteredQuestions = filteredQuestions.filter(q => 
-            !solvedQuestionIds.has(q._id)
+      if (response.success) {
+        let filteredQuestions = response.data;
+        if (filters.status === "solved") {
+          filteredQuestions = filteredQuestions.filter(
+            (q) => !solvedQuestionIds.has(q._id)
+          );
+        } else if (filters.status === "unsolved") {
+          filteredQuestions = filteredQuestions.filter(
+            (q) => !solvedQuestionIds.has(q._id)
           );
         }
-        setQuestions(filteredQuestions)
-        setTotalPages(response.pages)
-        setTotal(response.total)
-
-    }
-    } catch (error:any) {
-        setError(error.response?.data?.message || "Failed to load questions")
-    }finally{
-        setLoading(false)
+        setQuestions(filteredQuestions);
+        setTotalPages(response.pages);
+        setTotal(response.total);
+      }
+    } catch (error: any) {
+      setError(error.response?.data?.message || "Failed to load questions");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const loadSolvedQuestions = async ()=>{
-    try{
-        const response = await apiService.getUserSubmissions()
-        if(response.success && response.data){
-            const solved = new Set(
-                response.data
-                .filter(sub=> sub.status === "Accepted")
-                .map(sub=>typeof sub.questionId === "string" ? sub.questionId:sub.questionId._id)
+  const loadSolvedQuestions = async () => {
+    try {
+      const response = await apiService.getUserSubmissions();
+      if (response.success && response.data) {
+        const solved = new Set(
+          response.data
+            .filter((sub) => sub.status === "Accepted")
+            .map((sub) =>
+              typeof sub.questionId === "string"
+                ? sub.questionId
+                : sub.questionId._id
             )
-            setSolvedQuestionIds(solved)
-        }
-    }catch(error){
-        console.error("Failed to load solved question",error)
+        );
+        setSolvedQuestionIds(solved);
+      }
+    } catch (error) {
+      console.error("Failed to load solved question", error);
     }
-  }
+  };
 
-  const handleFilterChange = (newFilters:FileType)=>{
-    setFilters(newFilters)
-    setCurrentPage(1)
-  }
+  const handleFilterChange = (newFilters: FileType) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+  };
 
-  const handlePageChange = (page:number)=>{
-    setCurrentPage(page)
-    window.scrollTo({top:0,behavior:"smooth"})
-  }
- return (
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  return (
     <Layout>
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Practice Questions</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Practice Questions
+          </h1>
           <p className="text-gray-600 mt-2">
             Solve coding problems and improve your skills
           </p>
@@ -108,17 +112,18 @@ const Questions = () => {
 
         {/* Filters */}
         <div className="mb-6">
-          <QuestionFilters filters={filters} onFilterChange={handleFilterChange} />
+          <QuestionFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
         </div>
 
-        {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <div className="bg-error-light border border-error text-error-dark px-4 py-3 rounded-lg flex items-start gap-2">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -129,7 +134,6 @@ const Questions = () => {
         {/* Questions List */}
         {!loading && !error && (
           <>
-            {/* Results count */}
             <div className="mb-4 text-sm text-gray-600">
               Showing {questions.length} of {total} questions
             </div>
@@ -166,37 +170,38 @@ const Questions = () => {
                 </button>
 
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    // Show first page, last page, current page, and adjacent pages
-                    if (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          className={`
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => {
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`
                             px-4 py-2 rounded-lg font-medium transition-colors
                             ${
                               currentPage === page
-                                ? 'bg-primary-600 text-white'
-                                : 'border border-gray-300 hover:bg-gray-50'
+                                ? "bg-primary-600 text-white"
+                                : "border border-gray-300 hover:bg-gray-50"
                             }
                           `}
-                        >
-                          {page}
-                        </button>
-                      );
-                    } else if (
-                      page === currentPage - 2 ||
-                      page === currentPage + 2
-                    ) {
-                      return <span key={page}>...</span>;
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (
+                        page === currentPage - 2 ||
+                        page === currentPage + 2
+                      ) {
+                        return <span key={page}>...</span>;
+                      }
+                      return null;
                     }
-                    return null;
-                  })}
+                  )}
                 </div>
 
                 <button

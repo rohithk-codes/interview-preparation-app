@@ -7,6 +7,9 @@ import {
 import { AuthProvider } from "./contexts/AuthContext";
 import { SignupForm } from "./pages/Signup";
 import { LoginForm } from "./pages/Login";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Questions from "./components/questions/Questions";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -34,11 +37,21 @@ function App() {
               </div>
             }
           />
+          <Route path="/questions"element={
+            <ProtectedRoute>
+        <Questions/>
+          </ProtectedRoute>}/>
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard/>
+            </ProtectedRoute>
+          }/>
+
+          <Route path="/" element={<Navigate to="/questions" replace/>}/>
+        <Route path="*" element={<Navigate to="/questions" replace/>}/>
         </Routes>
 
-
-        <Route path="/" element={<Navigate to="/login" replace/>}/>
-        <Route path="*" element={<Navigate to="/login" replace/>}/>
 
       </Router>
     </AuthProvider>
