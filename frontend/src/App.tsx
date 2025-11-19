@@ -10,6 +10,7 @@ import { LoginForm } from "./pages/Login";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import Questions from "./components/questions/Questions";
 import Dashboard from "./pages/Dashboard";
+import QuestionDetail from "./pages/QuestionDetail";
 
 function App() {
   return (
@@ -46,6 +47,12 @@ function App() {
             <ProtectedRoute>
               <Dashboard/>
             </ProtectedRoute>
+          }/>
+
+          <Route path="/questions/:id" element={
+<ProtectedRoute>
+  <QuestionDetail/>
+</ProtectedRoute>
           }/>
 
           <Route path="/" element={<Navigate to="/questions" replace/>}/>

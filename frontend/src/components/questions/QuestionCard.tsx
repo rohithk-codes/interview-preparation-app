@@ -18,6 +18,7 @@ const QuestionCard = ({ question, isSolved = false }: QuestionCardProps) => {
   };
 
   const handleClick = () => {
+    console.log("id",question._id)
     navigate(`/questions/${question._id}`);
   };
 

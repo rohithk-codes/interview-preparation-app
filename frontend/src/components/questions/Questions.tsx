@@ -6,7 +6,7 @@ import type { Question, QuestionFilters as FileType } from "../../types";
 import apiService from "../../services/api";
 import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
-const Questions = () => {
+const Questions :React.FC= () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [solvedQuestionIds, setSolvedQuestionIds] = useState<Set<string>>(
     new Set()
@@ -83,6 +83,7 @@ const Questions = () => {
             )
         );
         setSolvedQuestionIds(solved);
+       
       }
     } catch (error) {
       console.error("Failed to load solved question", error);
@@ -144,6 +145,7 @@ const Questions = () => {
                 {questions.map((question) => (
                   <QuestionCard
                     key={question._id}
+                    
                     question={question}
                     isSolved={solvedQuestionIds.has(question._id)}
                   />

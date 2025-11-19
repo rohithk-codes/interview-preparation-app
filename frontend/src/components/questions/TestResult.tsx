@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import type { TestResult } from './types';
-import { CheckCircle2, XCircle, ChevronDown, ChevronRight, Clock } from 'lucide-react';
+import React, { useState } from 'react'
+import type{ TestResult } from '../../types'
+import{CheckCircle2,XCircle,ChevronDown,ChevronRight,Clock} from "lucide-react"
 
-interface TestResultsProps {
-  results: TestResult[];
+interface TestResultsProps{
+  results:TestResult[]
 }
+ 
+const TestResults = ({results}:TestResultsProps) => {
 
-const TestResults: React.FC<TestResultsProps> = ({ results }) => {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex,setExpandedIndex] = useState<number | null>(0)
 
-  const passedCount = results.filter((r) => r.passed).length;
-  const totalCount = results.length;
-  const allPassed = passedCount === totalCount;
+  const passedCount = results.filter((r)=>r.passed).length
+  const totalCount = results.length
+  const allPassed = passedCount === totalCount
 
-  const toggleExpanded = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
-  return (
+  const toggleExpanded = (index:number)=>{
+    setExpandedIndex(expandedIndex ===index? null : index)
+  }
+ return (
     <div className="card">
       {/* Header */}
       <div className="mb-4">
@@ -151,6 +151,6 @@ const TestResults: React.FC<TestResultsProps> = ({ results }) => {
       </div>
     </div>
   );
-};
+}
 
-export default TestResults;
+export default TestResults

@@ -86,6 +86,7 @@ class ApiService {
   }
 
   async getQuestionById(id: string): Promise<ApiResponse<Question>> {
+    console.log("question by id")
     const response = await this.api.get(`/questions/${id}`);
     return response.data;
   }
@@ -135,20 +136,21 @@ class ApiService {
   }
 
   async runCode(
-    quesitonId: string,
+    questionId: string,
     code: string,
     language: string
   ): Promise<ApiResponse> {
-    const response = await this.api.post("/submission/run", {
-      quesitonId,
+    const response = await this.api.post("/submissions/run", {
+      questionId,
       code,
       language,
     });
+    console.log("response data", response.data)
     return response.data;
   }
 
   async getUserSubmissions(limit?: number): Promise<ApiResponse<Submission[]>> {
-    const response = await this.api.get("/submission/user", {
+    const response = await this.api.get("/submissions/user", {
       params: { limit },
     });
     return response.data;
