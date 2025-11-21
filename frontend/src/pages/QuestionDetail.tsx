@@ -7,6 +7,8 @@ import  TestResults from "@/components/questions/TestResult";
 import apiService from "../services/api"
 import { AlertCircle,ArrowLeft } from "lucide-react";
 import CodeEditor from "../components/questions/CodeEditor";
+import {toast,ToastContainer} from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
 
 const QuestionDetail = ()=>{
     const {id} = useParams<{id:string}>()
@@ -112,9 +114,9 @@ if(id)loadQuestion()
             clearInterval(poll)
 
             if(submission.status==="Accepted"){
-                alert("All test case passed! Solution accepted")
+                toast.success("All test case passed! Solution accepted")
             }else{
-              alert(`❌ ${submission.status}`);
+              toast.error(` ${submission.status}`);
             }
            }
 
@@ -164,6 +166,18 @@ if(id)loadQuestion()
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
+        <ToastContainer 
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark" 
+      />
         {/* Back Button */}
         <button
           onClick={() => navigate('/questions')}
