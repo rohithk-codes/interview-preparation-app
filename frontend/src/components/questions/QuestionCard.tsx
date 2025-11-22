@@ -25,7 +25,7 @@ const QuestionCard = ({ question, isSolved = false }: QuestionCardProps) => {
   return (
     <div
       onClick={handleClick}
-    className="card hover:shadow-xl hover:-translate-y-2 hover:scale-102 transition-all duration-300 cursor-pointer group ">
+    className="card hover:shadow-xl hover:-translate-y-2 hover:scale-102 transition-all duration-300 cursor-pointer group border-6 rounded-lg ">
       <div className="flex items-start justify-between gap-4">
         {/* Left side - Status icon and content */}
         <div className="flex items-start gap-3 flex-1">
