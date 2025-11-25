@@ -41,6 +41,7 @@ const Questions :React.FC= () => {
         limit: 10,
       };
 
+
       if (filters.difficulty) params.difficulty = filters.difficulty;
       if (filters.topic) params.topic = filters.topic;
       if (filters.search) params.search = filters.search;
@@ -161,7 +162,7 @@ const Questions :React.FC= () => {
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {totalPages >= 1 && (
               <div className="mt-8 flex items-center justify-center gap-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}

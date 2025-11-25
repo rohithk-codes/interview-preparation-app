@@ -35,6 +35,7 @@ const QuestionDescription = ({question}:QuestionDescription) => {
             {question.topic}
           </span>
 
+
           {/* Acceptance Rate */}
           {question.acceptanceRate !== undefined && (
             <span className="flex items-center gap-1 text-sm text-gray-600">
