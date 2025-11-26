@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import Layout from "../common/Layout";
 import QuestionCard from "./QuestionCard";
 import QuestionFilters from "./QuestionFilters";
-import type { Question, QuestionFilters as FileType } from "../../types";
+import { QuestionCardSkeleton } from "../common/LoadingSkeltons";
+import type { Question, QuestionFilters as FilterType } from "../../types";
 import apiService from "../../services/api";
 import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
-const Questions :React.FC= () => {
+const Questions: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [solvedQuestionIds, setSolvedQuestionIds] = useState<Set<string>>(
     new Set()
@@ -17,12 +18,19 @@ const Questions :React.FC= () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const [filters, setFilters] = useState<FileType>({
+  const [filters, setFilters] = useState<FilterType>({
     difficulty: "",
     topic: "",
     search: "",
     status: "all",
   });
+
+  const [stats,setStats] = useState({
+    solved:0,
+    easy:0,
+    medium:0,
+    hard:0
+  })
 
   useEffect(() => {
     loadQuestions();
@@ -30,7 +38,26 @@ const Questions :React.FC= () => {
 
   useEffect(() => {
     loadSolvedQuestions();
+    loadStats()
   }, []);
+
+  const loadStats = async()=>{
+    try {
+      const userStatsRes = await   apiService.getUserStats()
+    
+      if(userStatsRes.success && userStatsRes.data){
+     setStats({
+      solved :userStatsRes.data.totalSolved,
+      easy:userStatsRes.data.byDifficulty.Easy,
+      medium:userStatsRes.data.byDifficulty.Medium,
+      hard:userStatsRes.data.byDifficulty.Hard
+    })
+
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  }
 
   const loadQuestions = async () => {
     setLoading(true);
@@ -40,7 +67,6 @@ const Questions :React.FC= () => {
         page: currentPage,
         limit: 10,
       };
-
 
       if (filters.difficulty) params.difficulty = filters.difficulty;
       if (filters.topic) params.topic = filters.topic;
@@ -84,14 +110,13 @@ const Questions :React.FC= () => {
             )
         );
         setSolvedQuestionIds(solved);
-       
       }
     } catch (error) {
       console.error("Failed to load solved question", error);
     }
   };
 
-  const handleFilterChange = (newFilters: FileType) => {
+  const handleFilterChange = (newFilters: FilterType) => {
     setFilters(newFilters);
     setCurrentPage(1);
   };
@@ -112,6 +137,27 @@ const Questions :React.FC= () => {
           </p>
         </div>
 
+{/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="card">
+            <div className="text-2xl font-bold text-primary-600">{stats.solved}</div>
+            <div className="text-sm text-gray-600 mt-1">Solved</div>
+          </div>
+          <div className="card">
+            <div className="text-2xl font-bold text-green-600">{stats.easy}</div>
+            <div className="text-sm text-gray-600 mt-1">Easy</div>
+          </div>
+          <div className="card">
+            <div className="text-2xl font-bold text-yellow-600">{stats.medium}</div>
+            <div className="text-sm text-gray-600 mt-1">Medium</div>
+          </div>
+          <div className="card">
+            <div className="text-2xl font-bold text-red-600">{stats.hard}</div>
+            <div className="text-sm text-gray-600 mt-1">Hard</div>
+          </div>
+        </div>
+
+
         {/* Filters */}
         <div className="mb-6">
           <QuestionFilters
@@ -121,8 +167,10 @@ const Questions :React.FC= () => {
         </div>
 
         {loading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <QuestionCardSkeleton key={i} />
+            ))}
           </div>
         )}
 
@@ -146,7 +194,6 @@ const Questions :React.FC= () => {
                 {questions.map((question) => (
                   <QuestionCard
                     key={question._id}
-                    
                     question={question}
                     isSolved={solvedQuestionIds.has(question._id)}
                   />

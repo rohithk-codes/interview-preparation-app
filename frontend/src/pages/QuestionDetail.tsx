@@ -2,12 +2,13 @@ import React,{useState,useEffect} from "react";
 import { useParams,useNavigate } from "react-router-dom";
 import Layout from "../components/common/Layout";
 import QuestionDescription from "../components/questions/QuestionDescription";
-import  TestResults from "@/components/questions/TestResult";
+import  TestResults from "../components/questions/TestResult";
  import type {Question,TestResult} from "../types"
 import apiService from "../services/api"
 import { AlertCircle,ArrowLeft } from "lucide-react";
 import CodeEditor from "../components/questions/CodeEditor";
 import {toast,ToastContainer} from "react-toastify"
+import SubmissionHistory from "../components/questions/SubmissionHistory"
 import 'react-toastify/dist/ReactToastify.css';
 
 const QuestionDetail = ()=>{
@@ -22,6 +23,7 @@ const QuestionDetail = ()=>{
     const[testResults,setTestResults] = useState<TestResult[]>([])
     const[submitting,setSubmitting] = useState(false)
     const[running,setRunning] = useState(false)
+    const[showHistory,setShowHistory] = useState(false)
 
     useEffect(()=>{
 if(id)loadQuestion()
@@ -140,7 +142,7 @@ if(id)loadQuestion()
      if (loading) {
         return (
           <Layout>
-            <div className="flex justify-center items-center py-12">
+            <div className="flex justify-center items-center py-12 ">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>
           </Layout>
@@ -181,14 +183,14 @@ if(id)loadQuestion()
         {/* Back Button */}
         <button
           onClick={() => navigate('/questions')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4  "
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Questions
         </button>
 
         {/* Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
           {/* Left Panel - Question Description */}
           <div className="lg:h-[calc(100vh-12rem)] lg:overflow-y-auto">
             <QuestionDescription question={question} />
@@ -221,6 +223,15 @@ if(id)loadQuestion()
             )}
           </div>
         </div>
+        {
+          question && (
+            <SubmissionHistory 
+            questionId={question._id}
+            isOpen={showHistory}
+            onClose={()=>setShowHistory(false)}
+            />
+          )
+        }
       </div>
     </Layout>
   );

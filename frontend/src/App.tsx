@@ -38,28 +38,38 @@ function App() {
               </div>
             }
           />
-          <Route path="/questions"element={
-            <ProtectedRoute>
-        <Questions/>
-          </ProtectedRoute>}/>
+          <Route
+            path="/questions"
+            element={
+              <ProtectedRoute>
+                <Questions />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard/>
-            </ProtectedRoute>
-          }/>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/questions/:id" element={
-<ProtectedRoute>
-  <QuestionDetail/>
-</ProtectedRoute>
-          }/>
+          <Route
+            path="/questions/:id"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-gray-700">
+                  <QuestionDetail />
+                </div>
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/" element={<Navigate to="/questions" replace/>}/>
-        <Route path="*" element={<Navigate to="/questions" replace/>}/>
+          <Route path="/" element={<Navigate to="/questions" replace />} />
+          <Route path="*" element={<Navigate to="/questions" replace />} />
         </Routes>
-
-
       </Router>
     </AuthProvider>
   );
