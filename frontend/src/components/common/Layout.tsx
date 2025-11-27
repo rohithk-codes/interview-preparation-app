@@ -50,11 +50,10 @@ const Layout = ({ children }: LayoutProps) => {
                 to="/questions"
                 className="flex items-center gap-2 ml-2 md:ml-0"
               >
-                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                  <Code2 className="w-6 h-6 text-gray-900" />
-                </div>
+                <img className="w-13 h-13 border rounded-lg " src="/crackit-logo.jpg" alt="crackit" />
+                
                 <span className="text-xl font-bold text-white hidden sm:block">
-                  CodePrep
+                  CrackIt
                 </span>
               </Link>
             </div>

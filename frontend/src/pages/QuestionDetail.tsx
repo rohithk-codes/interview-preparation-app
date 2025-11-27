@@ -5,15 +5,16 @@ import QuestionDescription from "../components/questions/QuestionDescription";
 import  TestResults from "../components/questions/TestResult";
  import type {Question,TestResult} from "../types"
 import apiService from "../services/api"
-import { AlertCircle,ArrowLeft } from "lucide-react";
+import { AlertCircle,ArrowLeft,History } from "lucide-react";
 import CodeEditor from "../components/questions/CodeEditor";
-import {toast,ToastContainer} from "react-toastify"
+import { useToast } from "../contexts/ToastContext";
 import SubmissionHistory from "../components/questions/SubmissionHistory"
-import 'react-toastify/dist/ReactToastify.css';
+
 
 const QuestionDetail = ()=>{
     const {id} = useParams<{id:string}>()
     const navigate = useNavigate()
+    const toast = useToast()
 
     const[question,setQuestion] = useState<Question | null>(null)
     const[loading,setLoading] = useState(true)
@@ -55,6 +56,7 @@ if(id)loadQuestion()
       .replace(/\s+/g, '');
 
       return `function ${functionName}(){
+      // Write your code here
       }`
     }
 
@@ -116,7 +118,7 @@ if(id)loadQuestion()
             clearInterval(poll)
 
             if(submission.status==="Accepted"){
-                toast.success("All test case passed! Solution accepted")
+                toast.success(" All test case passed! Solution accepted")
             }else{
               toast.error(` ${submission.status}`);
             }
@@ -168,18 +170,7 @@ if(id)loadQuestion()
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
-        <ToastContainer 
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark" 
-      />
+       
         {/* Back Button */}
         <button
           onClick={() => navigate('/questions')}
@@ -188,6 +179,14 @@ if(id)loadQuestion()
           <ArrowLeft className="w-5 h-5" />
           Back to Questions
         </button>
+
+         <button
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            <History className="w-5 h-5" />
+            Submission History
+          </button>
 
         {/* Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">

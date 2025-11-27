@@ -11,10 +11,12 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import Questions from "./components/questions/Questions";
 import Dashboard from "./pages/Dashboard";
 import QuestionDetail from "./pages/QuestionDetail";
+import { ToastProvider } from "./contexts/ToastContext";
 
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <Router>
         <Routes>
           <Route
@@ -71,6 +73,7 @@ function App() {
           <Route path="*" element={<Navigate to="/questions" replace />} />
         </Routes>
       </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 }

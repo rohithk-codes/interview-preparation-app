@@ -29,6 +29,7 @@ const SubmissionHistory = ({
     setLoading(true);
     try {
       const response = await apiService.getQuestionSubmissions(questionId);
+      console.log("Submissions response:", response);
       if (response.success && response.data) {
         setSubmissions(response.data);
       }

@@ -160,6 +160,7 @@ class ApiService {
     quesitonId: string
   ): Promise<ApiResponse<Submission[]>> {
     const response = await this.api.get(`/submissions/question/${quesitonId}`);
+    console.log("responseeeee",response)
     return response.data;
   }
 
