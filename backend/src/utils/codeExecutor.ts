@@ -64,17 +64,19 @@ export class CodeExecutor {
 
       //Execute the code
       const actualOutput = await this.safeEval(wrappedCode);
-      
       const executionTime = Date.now() - startTime;
 
-      //Compare outputs
+      // Convert to string properly
+      const actualString = typeof actualOutput === 'object' 
+        ? JSON.stringify(actualOutput) 
+        : String(actualOutput);          
+
       
-
+      //Compare outputs
       const expected = this.normalizeOutput(testCase.expectedOutput);
-            console.log("actual",expected)
-
-      const actual = this.normalizeOutput(actualOutput);
-      console.log("actual",actual)
+      
+      const actual = this.normalizeOutput(actualString);
+    
       const passed = expected === actual;
 
      
@@ -83,10 +85,11 @@ export class CodeExecutor {
         passed,
         input: testCase.input,
         expectedOutput: testCase.expectedOutput,
-        actualOutput: String(actualOutput),
+        actualOutput: actualString,
         executionTime,
       };
     } catch (error: any) {
+
       const executionTime = Date.now() - startTime;
       return {
         testCaseIndex: index,
@@ -156,6 +159,7 @@ export class CodeExecutor {
 
   private async safeEval(code: string): Promise<any> {
     return new Promise((resolve, reject) => {
+      
       const timeout = setTimeout(() => {
         reject(new Error("Time Limit Exceeded"));
       }, 5000);
@@ -176,45 +180,18 @@ export class CodeExecutor {
     });
   }
 
-//   private async safeEval(code: string): Promise<any> {
-//   return new Promise((resolve, reject) => {
-//     let completed = false;
-    
-//     const timeout = setTimeout(() => {
-//       if (!completed) {
-//         completed = true;
-//         reject(new Error("Time Limit Exceeded"));
-//       }
-//     }, 5000);
-    
-//     try {
-//       const func = new Function(`'use strict'; return (function(){ ${code} })();`);
-//       const result = func();
-      
-//       if (!completed) {
-//         completed = true;
-//         clearTimeout(timeout);
-//         resolve(result);
-//       }
-//     } catch (error: any) {
-//       if (!completed) {
-//         completed = true;
-//         clearTimeout(timeout);
-//         reject(error);
-//       }
-//     }
-//   });
-// }
 
 
-  //Normalise output for comparison
+
+ // Normalize output for comparison
   private normalizeOutput(output: string): string {
-  return output
-    .trim()                    // ✅ First remove leading/trailing spaces
-    .replace(/\s+/g, "")       // Then remove all spaces
-    .replace(/['"]/g, "")      // Remove quotes
-    .toLowerCase();            // Convert to lowercase
-}
+    // Remove spaces, quotes, and normalize formatting
+    return output
+      .replace(/\s+/g, '')
+      .replace(/['"]/g, '')
+      .toLowerCase()
+      .trim();
+  }
 
   //For execute python code
   async executePython(

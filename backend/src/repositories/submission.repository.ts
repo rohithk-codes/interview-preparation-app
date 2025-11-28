@@ -3,7 +3,7 @@ import Submission, {
   ISubmission,
   SubmissionStatus,
 } from "../models/Submission";
-
+import mongoose from "mongoose";
 
 export class SubmissionRepository extends BaseRepository<ISubmission> {
   constructor() {
@@ -16,7 +16,7 @@ export class SubmissionRepository extends BaseRepository<ISubmission> {
     limit: number = 50
   ): Promise<ISubmission[]> {
     return await Submission.find({ userId })
-      .populate("quesitonId", "title difficulty topic")
+      .populate("questionId", "title difficulty topic")
       .sort({ submittedAt: -1 })
       .limit(limit);
   }
@@ -37,7 +37,10 @@ export class SubmissionRepository extends BaseRepository<ISubmission> {
     userId: string,
     questionId: string
   ): Promise<ISubmission[]> {
-    return await Submission.find({ userId, questionId }).sort({
+    return await Submission.find({
+      userId,
+      questionId,
+    }).sort({
       submittedAt: -1,
     });
   }

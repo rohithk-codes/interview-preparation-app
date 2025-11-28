@@ -65,12 +65,16 @@ export class AuthService {
   // Login user
   async login(data: LoginDTO): Promise<AuthResponse> {
     const user = await userRepository.findByEmailWithPassword(data.email);
+    
     if (!user) {
+     
       throw new Error("Invalid credentials");
     }
 
     const isPasswordValid = await user.comparePassword(data.password);
+    
     if (!isPasswordValid) {
+     
       throw new Error("Invalid credentials");
     }
 

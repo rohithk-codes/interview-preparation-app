@@ -31,6 +31,8 @@ export class SubmissionService {
       passedTestCases: 0,
     } as any);
 
+    
+
     //Execute code asynchronously
     this.executeCodeAsync(
       submission.id.toString(),
@@ -115,6 +117,7 @@ export class SubmissionService {
     userId: string,
     questionId: string
   ): Promise<ISubmission[]> {
+    
     return await submissionRepository.findByUserAndQuestion(userId, questionId);
   }
 

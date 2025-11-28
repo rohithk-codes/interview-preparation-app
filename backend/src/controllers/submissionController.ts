@@ -79,8 +79,8 @@ export const getUserSubmissions = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.body;
-    if (req.user?.id) {
+    
+    if (!req.user?.id) {
       res.status(401).json({
         success: false,
         message: "Not authenticated",
@@ -121,12 +121,12 @@ export const getUserQuestionSubmissions = async (
       return;
     }
 
-    const { quesitonId } = req.params;
+    const { questionId } = req.params;
     const submissions = await submissionService.getUserQuestionSubmissions(
       req.user.id,
-      quesitonId
+      questionId
     );
-
+  
     res.status(200).json({
       success: true,
       count: submissions.length,
