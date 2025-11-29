@@ -1,7 +1,7 @@
-import submissionRepository from "../repositories/submission.repository";
-import questionRepository from "../repositories/question.repository";
-import codeExecutor from "../utils/codeExecutor";
-import { ISubmission, SubmissionStatus } from "../models/Submission";
+import submissionRepository from '../repositories/submission.repository';
+import questionRepository from '../repositories/question.repository';
+import codeExecutor from '../utils/codeExecutor';
+import type { ISubmission, SubmissionStatus } from '../models/Submission';
 
 export interface SubmitCodeDTO {
   userId: string;
@@ -11,39 +11,35 @@ export interface SubmitCodeDTO {
 }
 
 export class SubmissionService {
+  // Submit code for a question
   async submitCode(data: SubmitCodeDTO): Promise<ISubmission> {
+   
     const question = await questionRepository.findByIdWithSolution(
       data.questionId
     );
 
     if (!question) {
-      throw new Error("Question not found");
+      throw new Error('Question not found');
     }
 
-    //Initial submission
+    // Create initial submission
     const submission = await submissionRepository.create({
       userId: data.userId,
       questionId: data.questionId,
       code: data.code,
       language: data.language,
-      status: "Running" as SubmissionStatus,
+      status: 'Running' as SubmissionStatus,
       totalTestCases: question.testCases.length,
-      passedTestCases: 0,
+      passedTestCases: 0
     } as any);
 
-    
-
-    //Execute code asynchronously
-    this.executeCodeAsync(
-      submission.id.toString(),
-      question.testCases,
-      data.code,
-      data.language
-    );
+   
+    this.executeCodeAsync(submission.id.toString(), question.testCases, data.code, data.language);
 
     return submission;
   }
 
+  // Execute code and update submission
   private async executeCodeAsync(
     submissionId: string,
     testCases: any[],
@@ -53,58 +49,57 @@ export class SubmissionService {
     try {
       let executionResult;
 
-      //Execute based on language
-      if (language === "javascript") {
-        executionResult = await codeExecutor.executeJavaScritp(code, testCases);
-      } else if (language === "python") {
-        executionResult = await codeExecutor.executePython(code, testCases);
-      } else {
-        throw new Error(`Unsupported language: ${language}`);
+      
+      try {
+        executionResult = await codeExecutor.execute(code, language, testCases);
+      } catch (error: any) {
+        throw new Error(error.message || 'Code execution failed');
       }
 
-      //Final status
+      // Determine final status
       const allPassed = executionResult.totalPassed === testCases.length;
-      const status: SubmissionStatus = allPassed ? "Accepted" : "Wrong Answer";
+      const status: SubmissionStatus = allPassed ? 'Accepted' : 'Wrong Answer';
 
-      const hasErrors = executionResult.testResults.some((tr) => tr.error);
-      const finalStatus = hasErrors
-        ? ("Runtime Error" as SubmissionStatus)
-        : status;
+      
+      const hasErrors = executionResult.testResults.some(tr => tr.error);
+      const finalStatus = hasErrors ? 'Runtime Error' as SubmissionStatus : status;
 
-      //Update submission
+     
       await submissionRepository.updateStatus(submissionId, finalStatus, {
         testResults: executionResult.testResults,
         passedTestCases: executionResult.totalPassed,
-        executionTime: executionResult.executionTime,
+        executionTime: executionResult.executionTime
       });
 
-      if (finalStatus === "Accepted") {
+      // If accepted, update question statistics
+      if (finalStatus === 'Accepted') {
         const submission = await submissionRepository.findById(submissionId);
         if (submission) {
           await questionRepository.incrementSubmissions(
             submission.questionId.toString(),
             true
           );
-        } else {
-          const submission = await submissionRepository.findById(submissionId);
-          if (submission) {
-            await questionRepository.incrementSubmissions(
-              submission.questionId.toString(),
-              false
-            );
-          }
+        }
+      } else {
+        const submission = await submissionRepository.findById(submissionId);
+        if (submission) {
+          await questionRepository.incrementSubmissions(
+            submission.questionId.toString(),
+            false
+          );
         }
       }
     } catch (error: any) {
-      console.error("Code execution error:", error);
-      //Update submission with error
-      await submissionRepository.updateStatus(submissionId, "Runtime Error", {
-        error: error.message,
+      console.error('Code execution error:', error);
+      
+    
+      await submissionRepository.updateStatus(submissionId, 'Runtime Error', {
+        error: error.message
       });
     }
   }
 
-  //Users submission
+  // Get user's submissions
   async getUserSubmissions(
     userId: string,
     limit: number = 50
@@ -112,25 +107,26 @@ export class SubmissionService {
     return await submissionRepository.findByUserId(userId, limit);
   }
 
-  //User's submission for a specific question
+  // Get user's submissions for a specific question
   async getUserQuestionSubmissions(
     userId: string,
     questionId: string
   ): Promise<ISubmission[]> {
-    
     return await submissionRepository.findByUserAndQuestion(userId, questionId);
   }
 
-  //Submission by ID
+  // Get submission by ID
   async getSubmissionById(submissionId: string): Promise<ISubmission> {
     const submission = await submissionRepository.findById(submissionId);
+
     if (!submission) {
-      throw new Error("Submission is not found");
+      throw new Error('Submission not found');
     }
+
     return submission;
   }
 
-  //Check if user has solved a question
+  // Check if user has solved a question
   async hasUserSolvedQuestion(
     userId: string,
     questionId: string
@@ -138,26 +134,26 @@ export class SubmissionService {
     return await submissionRepository.hasUserSolvedQuestion(userId, questionId);
   }
 
-  //User statistics
+  // Get user statistics
   async getUserStatistics(userId: string) {
     const stats = await submissionRepository.getUserStats(userId);
     return stats;
   }
 
-  //Recent submissions for dashboard
+  // Get recent submissions for dashboard
   async getRecentSubmissions(
     userId: string,
     limit: number = 10
   ): Promise<ISubmission[]> {
-    return await submissionRepository.getRecentSubmission(userId, limit);
+    return await submissionRepository.getRecentSubmissions(userId, limit);
   }
 
-  //Solved question IDs for a user
+  // Get all solved question IDs for a user
   async getSolvedQuestionIds(userId: string): Promise<string[]> {
     return await submissionRepository.getSolvedQuestionIds(userId);
   }
 
-  //Get submission for a question admin only
+  // Get submissions for a question (admin only)
   async getQuestionSubmissions(
     questionId: string,
     limit: number = 50
@@ -165,51 +161,54 @@ export class SubmissionService {
     return await submissionRepository.findByQuestionId(questionId, limit);
   }
 
-  //Run code without submitting test run
+  // Run code without submitting 
   async runCode(
     questionId: string,
     code: string,
     language: string
-  ): Promise<{ 
+  ): Promise<{
     testResults: any[];
-  totalPassed:number;
-totalFailed:number;
-executionTime:number;
- }>{
-  //Get question with public test case only
-  const question = await questionRepository.findByIdPublic(questionId)
-  
-  if(!question){
-    throw new Error("Question not found")
-  }
-  
-  //Get only public test cases
-  const publicTestCases = question.testCases.filter(tc=>!tc.isHidden)
+    totalPassed: number;
+    totalFailed: number;
+    executionTime: number;
+  }> {
+    // Get question with public test cases only
+    const question = await questionRepository.findByIdPublic(questionId);
 
-  if(publicTestCases.length===0){
-    throw new Error("No public test cases available")
+    if (!question) {
+      throw new Error('Question not found');
+    }
+
+    // Get only public test cases
+    const publicTestCases = question.testCases.filter(tc => !tc.isHidden);
+
+    if (publicTestCases.length === 0) {
+      throw new Error('No public test cases available');
+    }
+
+    // Execute code with unified executor
+    return await codeExecutor.execute(code, language, publicTestCases);
   }
 
-  //Execute code
-  if(language==="javascript"){
-    return await codeExecutor.executeJavaScritp(code,publicTestCases)
-  }else{
-    throw new Error(`Language ${language} not yet supported`)
-  }
- }
+  // Delete user's submissions for a question
+  async deleteUserQuestionSubmissions(
+    userId: string,
+    questionId: string
+  ): Promise<number> {
+    const submissions = await submissionRepository.findByUserAndQuestion(
+      userId,
+      questionId
+    );
 
- //Delete user's submissions for a question
- async deleteUserQuestionSubmission(userId:string,questionId:string,):Promise<number>{
-  const submissions = await submissionRepository.findByUserAndQuestion(userId,questionId)
+    let deletedCount = 0;
+    for (const submission of submissions) {
+      const deleted = await submissionRepository.delete(submission.id.toString());
+      if (deleted) deletedCount++;
+    }
 
-  let deletedCount = 0 
-  for(let submission of submissions){
-    const deleted = await submissionRepository.delete(submission.id.toString())
-    if(deleted)deletedCount++
+    return deletedCount;
   }
-  return deletedCount
- }
 }
 
 
-export default new SubmissionService()
+export default new SubmissionService();

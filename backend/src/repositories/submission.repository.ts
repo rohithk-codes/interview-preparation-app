@@ -57,7 +57,7 @@ export class SubmissionRepository extends BaseRepository<ISubmission> {
   }
 
   //Users latest submission for a question
-  async getLatestSubmission(
+  async getLatestSubmissions(
     userId: string,
     questionId: string
   ): Promise<ISubmission | null> {
@@ -138,7 +138,7 @@ export class SubmissionRepository extends BaseRepository<ISubmission> {
   }
 
   //Recent submission for dashboard
-  async getRecentSubmission(
+  async getRecentSubmissions(
     userId: string,
     limit: number = 10
   ): Promise<ISubmission[]> {
