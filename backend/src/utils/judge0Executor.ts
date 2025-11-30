@@ -33,17 +33,22 @@ interface Judge0Response {
 
 export class Judge0Executor {
   private apiUrl: string;
-  private apiKey: string;
+  private apiKey: string 
   private apiHost: string;
 
   constructor() {
     this.apiUrl = process.env.JUDGE0_API_URL || 'https://judge0-ce.p.rapidapi.com';
-    this.apiKey = process.env.JUDGE0_API_KEY || '';
+     this.apiKey =   process.env.JUDGE0_API_KEY||"";
     this.apiHost = 'judge0-ce.p.rapidapi.com';
-
     if (!this.apiKey) {
       console.warn('⚠️  Judge0 API key not configured. Using fallback executor.');
     }
+  }
+
+ 
+
+  isAvailable(): boolean {
+    return !!this.apiKey;
   }
 
   // Execute code with test cases
@@ -60,6 +65,7 @@ export class Judge0Executor {
     if (!this.apiKey) {
       throw new Error('Judge0 API key not configured');
     }
+console.log("apikey",process.env.JUDGE0_API_KEY )
 
     const languageId = LANGUAGE_IDS[language as keyof typeof LANGUAGE_IDS];
     if (!languageId) {
@@ -131,7 +137,7 @@ export class Judge0Executor {
 
       // Submit to Judge0
       const submission = await this.submitCode(wrappedCode, languageId);
-
+console.log("ssss",submission)
       // Get result
       const result = await this.getResult(submission.token);
 
@@ -153,7 +159,7 @@ export class Judge0Executor {
         input: testCase.input,
         expectedOutput: testCase.expectedOutput,
         actualOutput: actualOutput || result.stdout || '',
-        executionTime: parseFloat(result.time) * 1000, // Convert to ms
+        executionTime: parseFloat(result.time) * 1000, 
         error
       };
     } catch (error: any) {
@@ -264,10 +270,7 @@ export class Judge0Executor {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // Check if Judge0 is available
-  isAvailable(): boolean {
-    return !!this.apiKey;
-  }
+ 
 }
-
 export default new Judge0Executor();
+

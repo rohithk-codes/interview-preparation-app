@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import { ITestCase } from "../models/Question";
 import { ITestResult } from "../models/Submission";
+
 import judge0Executor from "./judge0Executor";
 
 export class CodeExecutor{
@@ -16,8 +17,11 @@ export class CodeExecutor{
     executionTime:number;
   }>{
 
+
+console.log("api",judge0Executor.isAvailable())
     if(judge0Executor.isAvailable() && language !== "javascript"){
       try {
+        console.log("otherlanguage")
         return await judge0Executor.execute(code,language,testCases)
       } catch (error) {
                 console.error('Judge0 execution failed, falling back to local executor:', error);
@@ -26,6 +30,7 @@ export class CodeExecutor{
     }
 
     if(language==="javascript"){
+      
       return await this.executeJavaScript(code,testCases)
     }
      throw new Error(`Language ${language} not supported without Judge0`);
@@ -51,6 +56,7 @@ export class CodeExecutor{
 
       try {
         const result = await this.runTestCase(code,testCase,i)
+        
         testResults.push(result)
         if(result.passed){
           totalPassed++
@@ -90,7 +96,7 @@ private async runTestCase(
   const startTime = Date.now()
 
   try {
-    //Create safe execution environment
+    
     const wrappedCode = this.wrapCode(code,testCase.input)
 
     //Execute the code 
@@ -99,7 +105,7 @@ private async runTestCase(
 
     //Compare outputs
     const expected = this.normalizeOutput(testCase.expectedOutput)
-    const actual = this.normalizeOutput(String(actualOutput))
+    const actual = this.normalizeOutput(typeof actualOutput === 'string' ? actualOutput : JSON.stringify(actualOutput));
 
     const passed = expected === actual;
 
@@ -108,7 +114,7 @@ testCaseIndex:index,
 passed,
 input:testCase.input,
 expectedOutput:testCase.expectedOutput,
-actualOutput:String(actualOutput),
+actualOutput:JSON.stringify(actualOutput),
 executionTime
     }
 
@@ -131,7 +137,7 @@ executionTime
 //Wrap user code
 private wrapCode(code:string,input:string):string{
   const inputs = this.parseInput(input)
-  
+ 
   const functionName = this.extractFunctionName(code)
   if(!functionName){
     throw new Error("Colud not find function in code")
@@ -140,7 +146,7 @@ private wrapCode(code:string,input:string):string{
   return `${code}
   //Execute function with test inputs
   const result = ${functionName}(${inputs});
-  result
+  return  result
   `;
 }
 
@@ -154,27 +160,17 @@ private parseInput(input:string):string{
 }
 
 
-//Extract function name from code 
 private extractFunctionName(code:string):string | null {
 
-   const patterns = [
-      /function\s+(\w+)\s*\(/,
-      /const\s+(\w+)\s*=\s*function/,
-      /const\s+(\w+)\s*=\s*\(/,
-      /let\s+(\w+)\s*=\s*function/,
-      /var\s+(\w+)\s*=\s*function/
+      const patterns = [
+      /function\s+(\w+)\s*\(/,                   
+    /const\s+(\w+)\s*=\s*function/,             
+    /const\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,      
+    /let\s+(\w+)\s*=\s*function/,
+    /let\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,        
+    /var\s+(\w+)\s*=\s*function/,
+    /var\s+(\w+)\s*=\s*\([^)]*\)\s*=>/ 
     ];
-
-
-    //   const patterns = [
-    //   /function\s+(\w+)\s*\(/,                   
-    // /const\s+(\w+)\s*=\s*function/,             
-    // /const\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,      
-    // /let\s+(\w+)\s*=\s*function/,
-    // /let\s+(\w+)\s*=\s*\([^)]*\)\s*=>/,        
-    // /var\s+(\w+)\s*=\s*function/,
-    // /var\s+(\w+)\s*=\s*\([^)]*\)\s*=>/ 
-    // ];
 
     for(const pattern of patterns){
       const match = code.match(pattern)
@@ -192,6 +188,7 @@ private async safeEval(code:string):Promise<any>{
     },5000)
  
   try {
+    
     const func = new Function(`
       "use strict";
       return (function(){
@@ -200,6 +197,7 @@ private async safeEval(code:string):Promise<any>{
       `)
 
       const result = func()
+      console.log("EvalResult",result)
       clearTimeout(timeout)
       resolve(result)
   } catch (error:any) {
@@ -211,19 +209,19 @@ private async safeEval(code:string):Promise<any>{
 
 
   // Normalize output for comparison
-  private normalizeOutput(output: string): string {
-    // Remove spaces, quotes
-    return output
-      .replace(/\s+/g, '')
-      .replace(/['"]/g, '')
-      .toLowerCase()
-      .trim();
-  }
+ private normalizeOutput(output: string): any {
+  return output
+  .replace(/\s+/g, '')
+.replace(/['"]/g, '')
+.toLowerCase()
+.trim();
+}
 
 
-  isJudge0Available():boolean{
-    return judge0Executor.isAvailable()
-  }
+
+  // isJudge0Available():boolean{
+  //   return executor.isAvailable()
+  // }
 
 }
 
