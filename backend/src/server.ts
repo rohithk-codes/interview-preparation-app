@@ -1,5 +1,7 @@
-import express,{Application,Request,Response} from "express"
 import dotenv from "dotenv"
+dotenv.config()
+
+import express,{Application,Request,Response} from "express"
 import cors from "cors"
 import connectDB from "./config/db"
 
@@ -7,7 +9,7 @@ import authRoutes from "./routes/auth"
 import questionRoutes from './routes/question';
 import submissionRoutes from "./routes/submission"
 
-dotenv.config()
+
 
 const app:Application=express()
 
@@ -18,6 +20,7 @@ app.use(cors({
 app.use(express.json());
 
 connectDB();
+
 
 app.use('/api/auth',authRoutes)
 app.use('/api/questions', questionRoutes);
@@ -34,6 +37,8 @@ app.use((req:Request,res:Response)=>{
         message:"Route not found"
     })
 })
+
+
 
 const PORT = process.env.PORT || ""
 

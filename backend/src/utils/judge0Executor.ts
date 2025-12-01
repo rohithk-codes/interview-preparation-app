@@ -7,7 +7,7 @@ const LANGUAGE_IDS = {
   javascript: 63, // Node.js
   python: 71,     // Python 3
   java: 62,       // Java
-  cpp: 54         // C++ (GCC 9.2.0)
+  cpp: 54         // C++ 
 };
 
 interface Judge0Submission {
@@ -46,7 +46,6 @@ export class Judge0Executor {
   }
 
  
-
   isAvailable(): boolean {
     return !!this.apiKey;
   }
@@ -65,7 +64,7 @@ export class Judge0Executor {
     if (!this.apiKey) {
       throw new Error('Judge0 API key not configured');
     }
-console.log("apikey",process.env.JUDGE0_API_KEY )
+
 
     const languageId = LANGUAGE_IDS[language as keyof typeof LANGUAGE_IDS];
     if (!languageId) {
@@ -140,11 +139,11 @@ console.log("apikey",process.env.JUDGE0_API_KEY )
 console.log("ssss",submission)
       // Get result
       const result = await this.getResult(submission.token);
-
+console.log("result",result)
       // Parse output
       const actualOutput = this.normalizeOutput(result.stdout || '');
       const expectedOutput = this.normalizeOutput(testCase.expectedOutput);
-
+console.log("actualout",actualOutput)
       const passed = actualOutput === expectedOutput && result.status.id === 3; 
 
       // Check for errors
