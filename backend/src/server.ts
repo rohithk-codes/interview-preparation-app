@@ -8,7 +8,7 @@ import connectDB from "./config/db"
 import authRoutes from "./routes/auth"
 import questionRoutes from './routes/question';
 import submissionRoutes from "./routes/submission"
-
+import interviewRoutes from "./routes/interview"
 
 
 const app:Application=express()
@@ -25,6 +25,7 @@ connectDB();
 app.use('/api/auth',authRoutes)
 app.use('/api/questions', questionRoutes);
 app.use("/api/submissions",submissionRoutes)
+app.use("/api/interview",interviewRoutes)
 
 app.get("/",(req:Request,res:Response)=>{
     res.json({message:"Interview prepration app is running"})
