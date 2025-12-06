@@ -139,3 +139,72 @@ export interface QuestionFilters {
   search?: string;
   status?: 'all' | 'solved' | 'unsolved';
 }
+
+
+// Interview Q&A Types
+export interface InterviewKeyword {
+  word: string;
+  weight: number;
+  synonyms?: string[];
+}
+
+export interface InterviewQuestion {
+  _id: string;
+  question: string;
+  category: 'javascript' | 'python' | 'java' | 'general';
+  type: 'frontend' | 'backend' | 'fullstack';
+  difficulty: 'easy' | 'medium' | 'hard';
+  keywords: InterviewKeyword[];
+  idealAnswer: string;
+  hints: string[];
+  followUpQuestions: string[];
+  timeLimit?: number;
+}
+
+export interface AnswerResult {
+  questionId: string;
+  questionText: string;
+  userAnswer: string;
+  isVoiceAnswer: boolean;
+  score: number;
+  maxScore: number;
+  percentage: number;
+  matchedKeywords: string[];
+  missedKeywords: string[];
+  feedback: string;
+  timeSpent: number;
+  answeredAt: string;
+}
+
+export interface InterviewSession {
+  _id: string;
+  userId: string;
+  category: string;
+  type: string;
+  difficulty: string;
+  status: 'in-progress' | 'completed' | 'abandoned';
+  currentQuestionIndex: number;
+  questionIds: string[];
+  answers: AnswerResult[];
+  totalScore: number;
+  maxPossibleScore: number;
+  overallPercentage: number;
+  totalTimeSpent: number;
+  voiceAnswersCount: number;
+  startedAt: string;
+  completedAt?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  type: 'bot' | 'user';
+  content: string;
+  timestamp: Date;
+  isVoiceAnswer?: boolean;
+  evaluation?: {
+    percentage: number;
+    matchedKeywords: string[];
+    missedKeywords: string[];
+    feedback: string;
+  };
+}

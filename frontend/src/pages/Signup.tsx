@@ -1,16 +1,17 @@
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "../lib/utils";
+import { Button } from "../components/ui/button";
+import{Link} from "react-router-dom"
+import { Card, CardContent } from "../components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "../components/ui/field";
+import { Input } from "../components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 
 export function SignupForm({
@@ -153,9 +154,9 @@ export function SignupForm({
               </Field>
               <FieldDescription className="text-center">
                 Already have an account?{" "}
-                <a href="/login" className="text-primary">
+                <Link to="/login" className="text-primary">
                   Sign in
-                </a>
+                </Link>
               </FieldDescription>
             </FieldGroup>
           </form>

@@ -1,13 +1,23 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { Code2, List, BarChart3, LogOut, Menu, X, User } from "lucide-react";
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { 
+  Code2, 
+  List, 
+  BarChart3, 
+  LogOut, 
+  Menu, 
+  X,
+  User,
+  Shield,
+  MessageSquare
+} from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -15,12 +25,14 @@ const Layout = ({ children }: LayoutProps) => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   const navItems = [
-    { path: "/questions", icon: List, label: "Questions" },
-    { path: "/dashboard", icon: BarChart3, label: "Dashboard" },
+    { path: '/questions', icon: List, label: 'Questions' },
+    { path: '/interview', icon: MessageSquare, label: 'Interview Practice' },
+    { path: '/dashboard', icon: BarChart3, label: 'Dashboard' },
+    ...(user?.role === 'admin' ? [{ path: '/admin', icon: Shield, label: 'Admin Panel' }] : [])
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -28,7 +40,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
-      <nav className="bg-gradient-to-r from-gray-900 via-black to-gray-950 border-b border-gray-800 fixed w-full z-30 top-0">
+      <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Left side */}
@@ -36,24 +48,22 @@ const Layout = ({ children }: LayoutProps) => {
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
               >
                 {sidebarOpen ? (
-                  <X className="w-6 h-6 text-white" />
+                  <X className="w-6 h-6" />
                 ) : (
-                  <Menu className="w-6 h-6 text-white" />
+                  <Menu className="w-6 h-6" />
                 )}
               </button>
 
               {/* Logo */}
-              <Link
-                to="/questions"
-                className="flex items-center gap-2 ml-2 md:ml-0"
-              >
-                <img className="w-13 h-13 border rounded-lg " src="/crackit-logo.jpg" alt="crackit" />
-                
-                <span className="text-xl font-bold text-white hidden sm:block">
-                  CrackIt
+              <Link to="/questions" className="flex items-center gap-2 ml-2 md:ml-0">
+                <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <Code2 className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold text-gray-900 hidden sm:block">
+                  CodePrep
                 </span>
               </Link>
             </div>
@@ -62,17 +72,17 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-white">{user?.name}</p>
-                  <p className="text-xs text-gray-300">{user?.email}</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-900" />
+                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary-600" />
                 </div>
               </div>
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="hidden sm:inline">Logout</span>
@@ -83,15 +93,13 @@ const Layout = ({ children }: LayoutProps) => {
       </nav>
 
       {/* Sidebar */}
-
       <aside
         className={`
-    fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 
-    bg-gradient-to-br from-gray-900 via-black to-gray-950 border-r border-gray-800
-    transform transition-transform duration-300 ease-in-out z-20
-    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-    md:translate-x-0
-  `}
+          fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 
+          transform transition-transform duration-300 ease-in-out z-20
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0
+        `}
       >
         <nav className="p-4 space-y-2">
           {navItems.map((item) => {
@@ -102,13 +110,13 @@ const Layout = ({ children }: LayoutProps) => {
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
                 className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                      ${
-                        isActive(item.path)
-                          ? "bg-primary-50 text-green-600 font-medium"
-                          : "text-white hover:bg-green-600"
-                      }
-                    `}
+                  flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                  ${
+                    isActive(item.path)
+                      ? 'bg-primary-50 text-primary-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }
+                `}
               >
                 <Icon className="w-5 h-5" />
                 {item.label}
@@ -119,8 +127,10 @@ const Layout = ({ children }: LayoutProps) => {
       </aside>
 
       {/* Main content */}
-      <main className="md:pl-64 pt-16 bg-gray-50">
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+      <main className="md:pl-64 pt-16">
+        <div className="p-4 sm:p-6 lg:p-8">
+          {children}
+        </div>
       </main>
 
       {/* Mobile overlay */}

@@ -34,18 +34,18 @@ class ApiService {
     );
 
     //Handle response errors
-    this.api.interceptors.response.use(
-      (response) => response,
-      (error: AxiosError<ApiResponse>) => {
-        if (error.response?.status === 401) {
-          //Token expired or invalid
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          window.location.href = "/login";
-        }
-        return Promise.reject(error);
-      }
-    );
+    // this.api.interceptors.response.use(
+    //   (response) => response,
+    //   (error: AxiosError<ApiResponse>) => {
+    //     if (error.response?.status === 401) {
+    //       //Token expired or invalid
+    //       localStorage.removeItem("token");
+    //       localStorage.removeItem("user");
+    //       window.location.href = "/login";
+    //     }
+    //     return Promise.reject(error);
+    //   }
+    // );
   }
 
   //Auth APIs
@@ -54,7 +54,7 @@ class ApiService {
     email: string,
     password: string
   ): Promise<AuthResponse> {
-    const response = await this.api.post<AuthResponse>("/signup", {
+    const response = await this.api.post<AuthResponse>("/auth/signup", {
       name,
       email,
       password,
@@ -177,7 +177,7 @@ class ApiService {
   async getRecentSubmissions(
     limit?: number
   ): Promise<ApiResponse<Submission[]>> {
-    const response = await this.api.get("/submission/recent", {
+    const response = await this.api.get("/submissions/recent", {
       params: { limit },
     });
     return response.data;
@@ -187,6 +187,74 @@ class ApiService {
     questionId: string
   ): Promise<ApiResponse<{ solved: boolean }>> {
     const response = await this.api.get(`/submissions/solved/${questionId}`);
+    return response.data;
+  }
+
+  // Interview Q&A APIs
+ async startInterviewSession(
+    category: string,
+    type: string,
+    questionCount?: number
+  ): Promise<ApiResponse> {
+    const response = await this.api.post('/interview/start', {
+      category,
+      type,
+      questionCount
+    });
+    return response.data;
+  }
+
+  async submitInterviewAnswer(
+    sessionId: string,
+    questionId: string,
+    answer: string,
+    isVoiceAnswer: boolean,
+    timeSpent: number
+  ): Promise<ApiResponse> {
+    const response = await this.api.post('/interview/answer', {
+      sessionId,
+      questionId,
+      answer,
+      isVoiceAnswer,
+      timeSpent
+    });
+    return response.data;
+  }
+
+  async getInterviewSession(sessionId: string): Promise<ApiResponse> {
+    const response = await this.api.get(`/interview/session/${sessionId}`);
+    return response.data;
+  }
+
+  async getCurrentInterviewQuestion(sessionId: string): Promise<ApiResponse> {
+    const response = await this.api.get(`/interview/session/${sessionId}/current`);
+    return response.data;
+  }
+
+  async getInterviewHistory(): Promise<ApiResponse> {
+    const response = await this.api.get('/interview/history');
+    return response.data;
+  }
+
+  async getInterviewStats(): Promise<ApiResponse> {
+    const response = await this.api.get('/interview/stats');
+    return response.data;
+  }
+
+  async abandonInterviewSession(sessionId: string): Promise<ApiResponse> {
+    const response = await this.api.post(`/interview/session/${sessionId}/abandon`);
+    return response.data;
+  }
+
+  async getInterviewFilters(): Promise<ApiResponse> {
+    const response = await this.api.get('/interview/filters');
+    return response.data;
+  }
+
+  async getInterviewQuestionCount(category: string, type: string): Promise<ApiResponse> {
+    const response = await this.api.get('/interview/count', {
+      params: { category, type }
+    });
     return response.data;
   }
 }

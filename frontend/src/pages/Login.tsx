@@ -1,23 +1,24 @@
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "../components/ui/button"
+import {Link} from "react-router-dom"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "../components/ui/card"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "../components/ui/field"
+import { Input } from "../components/ui/input"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "../contexts/AuthContext"
 import { useState } from "react"
 import { AlertCircle } from "lucide-react"
 
@@ -50,6 +51,7 @@ setError("");
 setLoading(true);
 
 try {
+
   await login(formData.email,formData.password)
   navigate("/questions")
 } catch (error:any) {
@@ -134,7 +136,7 @@ Sign in to continue your journey
                 </>):("Login")}
                 </Button>
                 <FieldDescription className="text-center">
-                  Don't have an account? <a href="/signup">Sign up</a>
+                  Don't have an account? <Link to="/signup">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

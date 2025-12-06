@@ -12,6 +12,9 @@ import Questions from "./components/questions/Questions";
 import Dashboard from "./pages/Dashboard";
 import QuestionDetail from "./pages/QuestionDetail";
 import { ToastProvider } from "./contexts/ToastContext";
+import AdminPage from "./pages/Admin";
+import QuestionForm from "./components/admin/QuestionForm";
+import InterviewPractice from "./pages/InterviewPractice";
 
 function App() {
   return (
@@ -69,6 +72,34 @@ function App() {
             }
           />
 
+           <Route 
+            path="/interview" 
+            element={
+              <ProtectedRoute>
+                <InterviewPractice />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Admin Routes */}
+          <Route 
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AdminPage/>
+            </ProtectedRoute>
+          }
+          />
+
+          <Route 
+          path="/admin/questions/:id"
+          element={
+            <ProtectedRoute requireAdmin>
+              <QuestionForm/>
+            </ProtectedRoute>
+          }
+          />
+        {/* Default redirect */}
           <Route path="/" element={<Navigate to="/questions" replace />} />
           <Route path="*" element={<Navigate to="/questions" replace />} />
         </Routes>
