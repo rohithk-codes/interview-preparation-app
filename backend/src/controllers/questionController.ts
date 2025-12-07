@@ -20,8 +20,7 @@ export const getAllQuestions = async (
     };
 
     const result = await questionService.getAllQuestions(filters, pagination);
-    console.log("dd",result.page)
-
+    
     res.status(200).json({
       success: true,
       count: result.questions.length,
@@ -47,7 +46,7 @@ export const getQuestionById = async (
   try {
 
     const {id} = req.params
-    console.log('Fetching question with ID:', id);
+  
     const question = await questionService.getQuestionById(id);
 
     res.status(200).json({
