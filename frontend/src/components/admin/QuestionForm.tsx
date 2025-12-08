@@ -50,7 +50,7 @@ const QuestionForm: React.FC = () => {
           testCases: q.testCases.length > 0 ? q.testCases : [{ input: '', expectedOutput: '', isHidden: false }],
           solution: q.solution || '',
           constraints: q.constraints || '',
-          examples: q.examples && q.examples.length > 0 ? q.examples : [{ input: '', output: '', explanation: '' }],
+          examples: q.examples && q.examples.length > 0 ? q.examples.map(ex => ({ ...ex, explanation: ex.explanation || '' })) : [{ input: '', output: '', explanation: '' }],
           hints: q.hints && q.hints.length > 0 ? q.hints : ['']
         });
       }
