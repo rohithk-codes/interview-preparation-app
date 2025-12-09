@@ -95,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 
+          fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-black border-r border-gray-200 
           transform transition-transform duration-300 ease-in-out z-20
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
