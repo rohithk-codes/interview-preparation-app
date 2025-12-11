@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import userRepository from "../repositories/user.repository";
 import { IUser } from "../models/User";
 
@@ -24,6 +25,11 @@ export interface AuthResponse {
 }
 
 export class AuthService {
+  private googleClient: OAuth2Client;
+
+  constructor() {
+    this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  }
  
   private generateToken(userId: string): string {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
@@ -67,14 +73,12 @@ export class AuthService {
     const user = await userRepository.findByEmailWithPassword(data.email);
     
     if (!user) {
-     
       throw new Error("Invalid credentials");
     }
 
     const isPasswordValid = await user.comparePassword(data.password);
     
     if (!isPasswordValid) {
-     
       throw new Error("Invalid credentials");
     }
 
@@ -84,6 +88,55 @@ export class AuthService {
       user: this.formatUserResponse(user),
       token,
     };
+  }
+
+  // Google Login
+  async googleLogin(credential: string): Promise<AuthResponse> {
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+
+      if (!payload || !payload.email) {
+        throw new Error("Invalid Google token");
+      }
+
+      const { email, name, sub: googleId } = payload;
+
+      let user = await userRepository.findByEmail(email);
+
+      if (user) {
+        // User exists, check if googleId is linked, if not, link it
+        if (!user.googleId) {
+          user.googleId = googleId;
+          await user.save();
+        }
+      } else {
+        // Create new user
+        // Generate a random password since it's required
+        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        
+        user = await userRepository.create({
+          name: name || "Google User",
+          email: email,
+          password: randomPassword,
+          role: "user",
+          googleId: googleId,
+        } as any);
+      }
+
+      const token = this.generateToken(user.id.toString());
+
+      return {
+        user: this.formatUserResponse(user),
+        token,
+      };
+    } catch (error) {
+      console.error("Google login error:", error);
+      throw new Error("Google authentication failed");
+    }
   }
 
   // Get user by ID
@@ -109,4 +162,5 @@ export class AuthService {
 }
 
 
+// Export a singleton instance
 export default new AuthService();

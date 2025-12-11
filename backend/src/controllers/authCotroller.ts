@@ -80,6 +80,35 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      res.status(400).json({
+        success: false,
+        message: "Google credential is required",
+      });
+      return;
+    }
+
+    const result = await authService.googleLogin(credential);
+
+    res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Google login controller error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Google login failed",
+      error: error.message,
+    });
+  }
+};
+
 export const profile = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) {

@@ -8,7 +8,7 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "watch": "tsc -w",
     "seed": "ts-node src/utils/seedQuestions.ts",
-     "seed:interview": "ts-node src/utils/seedInterviewQuestions.ts"
+    "seed:interview": "ts-node src/utils/seedInterviewQuestions.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3"
   },
