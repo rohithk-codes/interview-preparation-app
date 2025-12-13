@@ -40,15 +40,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
+      <nav className="bg-black  border-b border-gray-200 fixed w-full z-30 top-0">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Left side */}
-            <div className="flex items-center">
+            <div className="flex items-center ">
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+                className="md:hidden bg-white p-2 rounded-lg hover:bg-gray-100"
               >
                 {sidebarOpen ? (
                   <X className="w-6 h-6" />
@@ -59,11 +59,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* Logo */}
               <Link to="/questions" className="flex items-center gap-2 ml-2 md:ml-0">
-                <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                  <Code2 className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center border justify-center">
+                  <img src="/crackit-logo2.png" alt="crackIt-logo" />
                 </div>
-                <span className="text-xl font-bold text-gray-900 hidden sm:block">
-                  CodePrep
+                <span className="text-xl font-bold text-white hidden sm:block">
+                 CrackIt
                 </span>
               </Link>
             </div>
@@ -72,8 +72,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs text-white">{user?.email}</p>
                 </div>
                 <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-primary-600" />
@@ -82,7 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-white hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="hidden sm:inline">Logout</span>
@@ -113,8 +113,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
                   ${
                     isActive(item.path)
-                      ? 'bg-primary-50 text-primary-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-50 text-green-600 font-medium'
+                      : 'text-white hover:bg-green-600'
                   }
                 `}
               >

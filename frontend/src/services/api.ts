@@ -70,6 +70,13 @@ class ApiService {
     return response.data;
   }
 
+  async googleLogin(credential: string): Promise<AuthResponse> {
+    const response = await this.api.post<AuthResponse>("/auth/google", {
+      credential,
+    });
+    return response.data;
+  }
+
   //Quesiton APIs
 
   async getQuestions(params?: {

@@ -13,6 +13,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -70,6 +71,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const loginWithGoogle = async (credential: string) => {
+    try {
+      const response = await apiService.googleLogin(credential);
+      const { user: userInfo, token: jwtToken } = response.data;
+
+      setUser(userInfo);
+      setToken(jwtToken);
+
+      localStorage.setItem("token", jwtToken);
+      localStorage.setItem("user", JSON.stringify(userInfo));
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Google Login failed. Please try again."
+      );
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -84,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signup,
     login,
     logout,
+    loginWithGoogle,
     isAuthenticated: !!user && !!token,
   };
 
