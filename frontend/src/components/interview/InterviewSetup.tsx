@@ -73,7 +73,7 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
                   className={`p-4 rounded-lg border-2 transition-all ${
                     category === cat.value
                       ? 'border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200 hover:border-green-300'
                   }`}
                 >
                   <span className="font-medium">{cat.label}</span>
