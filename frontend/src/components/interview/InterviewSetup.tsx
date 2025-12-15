@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { Code2, MessageSquare, Zap } from 'lucide-react';
+import React, { useState } from "react";
+import { Code2, MessageSquare, Zap } from "lucide-react";
 
 interface InterviewSetupProps {
   onStart: (category: string, type: string, questionCount: number) => void;
   loading: boolean;
 }
 
-const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => {
-  const [category, setCategory] = useState('javascript');
-  const [type, setType] = useState('frontend');
+const InterviewSetup: React.FC<InterviewSetupProps> = ({
+  onStart,
+  loading,
+}) => {
+  const [category, setCategory] = useState("javascript");
+  const [type, setType] = useState("frontend");
   const [questionCount, setQuestionCount] = useState(5);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,7 +37,9 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="card text-center">
           <Code2 className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-          <h3 className="font-medium text-gray-900 mb-1">Technical Questions</h3>
+          <h3 className="font-medium text-gray-900 mb-1">
+            Technical Questions
+          </h3>
           <p className="text-sm text-gray-600">Real interview questions</p>
         </div>
         <div className="card text-center">
@@ -61,19 +66,19 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
             </label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: 'javascript', label: 'JavaScript' },
-                { value: 'python', label: 'Python' },
-                { value: 'java', label: 'Java' },
-                { value: 'general', label: 'General CS' }
+                { value: "javascript", label: "JavaScript" },
+                { value: "python", label: "Python" },
+                { value: "java", label: "Java" },
+                { value: "general", label: "General CS" },
               ].map((cat) => (
                 <button
                   key={cat.value}
                   type="button"
                   onClick={() => setCategory(cat.value)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-lg border-2  transition-all ${
                     category === cat.value
-                      ? 'border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-gray-200 hover:border-green-300'
+                      ? "border-primary-600 bg-orange-400 text-white"
+                      : "border-gray-200 hover:border-orange-400"
                   }`}
                 >
                   <span className="font-medium">{cat.label}</span>
@@ -89,9 +94,9 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
             </label>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { value: 'frontend', label: 'Frontend' },
-                { value: 'backend', label: 'Backend' },
-                { value: 'fullstack', label: 'Full Stack' }
+                { value: "frontend", label: "Frontend" },
+                { value: "backend", label: "Backend" },
+                { value: "fullstack", label: "Full Stack" },
               ].map((t) => (
                 <button
                   key={t.value}
@@ -99,8 +104,8 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
                   onClick={() => setType(t.value)}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     type === t.value
-                      ? 'border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? "border-primary-600 bg-green-500 text-white"
+                      : "border-gray-200 hover:border-green-500"
                   }`}
                 >
                   <span className="font-medium">{t.label}</span>
@@ -132,15 +137,23 @@ const InterviewSetup: React.FC<InterviewSetupProps> = ({ onStart, loading }) => 
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700
+    text-white
+    font-semibold
+    py-3 px-4
+    rounded-lg
+    transition-all 
+    duration-200 
+    disabled:opacity-50
+     disabled:cursor-not-allowed"
           >
             {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span className="flex items-center justify-center   gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-200"></div>
                 Starting Session...
               </span>
             ) : (
-              'Start Interview Practice'
+              "Start Interview Practice"
             )}
           </button>
         </form>

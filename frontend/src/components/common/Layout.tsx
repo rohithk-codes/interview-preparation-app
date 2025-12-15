@@ -114,7 +114,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   ${
                     isActive(item.path)
                       ? 'bg-primary-50 text-green-600 font-medium'
-                      : 'text-white hover:bg-green-600'
+                      : 'text-white hover:bg-green-500'
                   }
                 `}
               >
