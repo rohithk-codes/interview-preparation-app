@@ -1,13 +1,14 @@
 import express from "express";
-import { signup, login, profile, googleLogin } from "../controllers/authCotroller";
+import authController from "../controllers/authCotroller";
 import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
-router.post("/signup", signup);
-router.post("/login", login);
-router.post("/google", googleLogin);
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
+router.post("/google", authController.googleLogin);
+router.post("/logout", authController.logout);
 
-router.get("/profile", protect, profile);
+router.get("/profile", protect, authController.profile);
 
 export default router;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import userRepository from "../repositories/user.repository";
 
 interface JwtPayload {
   id: string;
@@ -12,15 +12,7 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    let token: string | undefined;
-
-    // Check for token in Authorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token: string | undefined = req.cookies.token;
 
     if (!token) {
       res.status(401).json({
@@ -32,19 +24,45 @@ export const protect = async (
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET!
     ) as JwtPayload;
 
-    // Attach user id to request
+    // Route through the repository — never talk to the Mongoose model directly
+    const user = await userRepository.findByIdSafe(decoded.id);
+
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: "Not authorized, user not found",
+      });
+      return;
+    }
+
     req.user = {
-      id: decoded.id,
-      email: "",
-      role: "",
+      id: user.id.toString(),
+      email: user.email,
+      role: user.role,
     };
 
     next();
   } catch (error: any) {
     console.error("Auth middleware error:", error);
+
+    if (error.name === "JsonWebTokenError") {
+      res.status(401).json({
+        success: false,
+        message: "Not authorized, invalid token",
+      });
+      return;
+    }
+
+    if (error.name === "TokenExpiredError") {
+      res.status(401).json({
+        success: false,
+        message: "Not authorized, token expired",
+      });
+      return;
+    }
 
     res.status(500).json({
       success: false,

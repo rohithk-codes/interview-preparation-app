@@ -1,30 +1,22 @@
 import express from "express";
-import {
-  getAllQuestions,
-  getQuestionById,
-  createQuestion,
-  updateQuestion,
-  deleteQuestion,
-  getTopics,
-  getQuestionStats,
-} from "../controllers/questionController";
+import questionController from "../controllers/questionController";
 import { protect, authorize } from "../middleware/auth";
 
 const router = express.Router();
 
-router.get("/stats", protect, getQuestionStats);
-router.get("/topics", protect, getTopics);
+router.get("/stats", protect, questionController.getQuestionStats);
+router.get("/topics", protect, questionController.getTopics);
 
 // Question CRUD
 router
   .route("/")
-  .get(getAllQuestions)
-  .post(protect, authorize("admin"), createQuestion);
+  .get(questionController.getAllQuestions)
+  .post(protect, authorize("admin"), questionController.createQuestion);
 
 router
   .route("/:id")
-  .get(protect, getQuestionById)
-  .put(protect, authorize("admin"), updateQuestion)
-  .delete(protect, authorize("admin"), deleteQuestion);
+  .get(protect, questionController.getQuestionById)
+  .put(protect, authorize("admin"), questionController.updateQuestion)
+  .delete(protect, authorize("admin"), questionController.deleteQuestion);
 
 export default router;

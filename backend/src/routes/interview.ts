@@ -1,15 +1,5 @@
 import express from 'express';
-import {
-  startSession,
-  submitAnswer,
-  getCurrentQuestion,
-  getSession,
-  getHistory,
-  getStats,
-  abandonSession,
-  getFilters,
-  getQuestionCount
-} from '../controllers/interviewController';
+import interviewController from '../controllers/interviewController';
 import { protect } from '../middleware/auth';
 
 const router = express.Router();
@@ -18,16 +8,16 @@ const router = express.Router();
 router.use(protect);
 
 // Session management
-router.post('/start', startSession);
-router.post('/answer', submitAnswer);
-router.post('/session/:sessionId/abandon', abandonSession);
+router.post('/start', interviewController.startSession);
+router.post('/answer', interviewController.submitAnswer);
+router.post('/session/:sessionId/abandon', interviewController.abandonSession);
 
 // Get data
-router.get('/session/:sessionId', getSession);
-router.get('/session/:sessionId/current', getCurrentQuestion);
-router.get('/history', getHistory);
-router.get('/stats', getStats);
-router.get('/filters', getFilters);
-router.get('/count', getQuestionCount);
+router.get('/session/:sessionId', interviewController.getSession);
+router.get('/session/:sessionId/current', interviewController.getCurrentQuestion);
+router.get('/history', interviewController.getHistory);
+router.get('/stats', interviewController.getStats);
+router.get('/filters', interviewController.getFilters);
+router.get('/count', interviewController.getQuestionCount);
 
 export default router;

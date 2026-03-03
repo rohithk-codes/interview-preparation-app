@@ -1,34 +1,24 @@
 import express from "express";
-import {
-  submitCode,
-  runCode,
-  getUserQuestionSubmissions,
-  getSubmissionById,
-  getUserStats,
-  getRecentSubmission,
-  checkQuestionSolved,
-  getUserSubmissions
-} from "../controllers/submissionController";
-
+import submissionController from "../controllers/submissionController";
 import { protect } from "../middleware/auth";
 
-const router = express.Router()
+const router = express.Router();
 
-router.use(protect)
+router.use(protect);
 
-//Submit and run code
-router.post("/",submitCode)
-router.post("/run",runCode)
+// Submit and run code
+router.post("/", submissionController.submitCode);
+router.post("/run", submissionController.runCode);
 
-//User submissions
-router.get("/user",getUserSubmissions)
-router.get("/recent",getRecentSubmission)
-router.get("/stats/user",getUserStats)
+// User submissions
+router.get("/user", submissionController.getUserSubmissions);
+router.get("/recent", submissionController.getRecentSubmission);
+router.get("/stats/user", submissionController.getUserStats);
 
-//Question-specific routes
-router.get("/question/:questionId",getUserQuestionSubmissions)
-router.get("/solved/:questionId",checkQuestionSolved)
+// Question-specific routes
+router.get("/question/:questionId", submissionController.getUserQuestionSubmissions);
+router.get("/solved/:questionId", submissionController.checkQuestionSolved);
 
-router.get("/:id",getSubmissionById)
+router.get("/:id", submissionController.getSubmissionById);
 
-export default router
+export default router;
