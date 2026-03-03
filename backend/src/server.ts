@@ -3,6 +3,7 @@ dotenv.config()
 
 import express,{Application,Request,Response} from "express"
 import cors from "cors"
+import cookieParser from "cookie-parser"
 import connectDB from "./config/db"
 
 import authRoutes from "./routes/auth"
@@ -18,6 +19,7 @@ app.use(cors({
     credentials:true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 connectDB();
 
