@@ -34,7 +34,7 @@ export class SubmissionService {
     } as any);
 
    
-    this.executeCodeAsync(submission.id.toString(), question.testCases, data.code, data.language);
+    this.executeCodeAsync(submission._id.toString(), question.testCases, data.code, data.language);
 
     return submission;
   }
@@ -202,7 +202,7 @@ export class SubmissionService {
 
     let deletedCount = 0;
     for (const submission of submissions) {
-      const deleted = await submissionRepository.delete(submission.id.toString());
+      const deleted = await submissionRepository.delete(submission._id.toString());
       if (deleted) deletedCount++;
     }
 

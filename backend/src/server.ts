@@ -1,7 +1,8 @@
+
 import dotenv from "dotenv"
 dotenv.config()
 
-import express,{Application,Request,Response} from "express"
+import express, { Application, Request, Response } from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import connectDB from "./config/db"
@@ -12,32 +13,29 @@ import submissionRoutes from "./routes/submission"
 import interviewRoutes from "./routes/interview"
 
 
-const app:Application=express()
+const app: Application = express()
 
 app.use(cors({
-    origin:'http://localhost:5173',
-    credentials:true
+    origin: ['http://localhost:5173','http://localhost:5174'],
+    credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-connectDB();
-
-
-app.use('/api/auth',authRoutes)
+app.use('/api/auth', authRoutes)
 app.use('/api/questions', questionRoutes);
-app.use("/api/submissions",submissionRoutes)
-app.use("/api/interview",interviewRoutes)
+app.use("/api/submissions", submissionRoutes)
+app.use("/api/interview", interviewRoutes)
 
-app.get("/",(req:Request,res:Response)=>{
-    res.json({message:"Interview prepration app is running"})
+app.get("/", (req: Request, res: Response) => {
+    res.json({ message: "Interview prepration app is running" })
 })
 
 
-app.use((req:Request,res:Response)=>{
+app.use((req: Request, res: Response) => {
     res.status(404).json({
-        success:false,
-        message:"Route not found"
+        success: false,
+        message: "Route not found"
     })
 })
 
@@ -45,6 +43,16 @@ app.use((req:Request,res:Response)=>{
 
 const PORT = process.env.PORT || ""
 
-app.listen(PORT,()=>{
-    console.log(`server runnig on port ${PORT}`)
-})
+const startServer = async () => {
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`server runnig on port ${PORT}`)
+        })
+    } catch (error) {
+        console.error("Failed to start server", error)
+        process.exit(1)
+    }
+}
+
+startServer()

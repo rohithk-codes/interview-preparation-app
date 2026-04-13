@@ -1,15 +1,25 @@
 
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
 import mongoose from "mongoose";
 
 
 const connectDB = async():Promise <void> =>{
+    if (!process.env.MONGODB_URI) {
+        throw new Error("MONGODB_URI is not set");
+    }
+
     try{
-        await mongoose.connect(process.env.MONGODB_URI as string)
+        await mongoose.connect(process.env.MONGODB_URI)
+
         console.log("Mongodb connected")
     }catch(error){
         console.error("MongoDB connection error",error)
-        process.exit(1)
+        throw error
     }
 }
 
-export default connectDB
+
+
+
+ export default connectDB

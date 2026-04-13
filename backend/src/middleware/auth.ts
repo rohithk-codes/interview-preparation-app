@@ -12,7 +12,11 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token: string | undefined = req.cookies.token;
+    let token: string | undefined;
+
+    if (req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
     if (!token) {
       res.status(401).json({
@@ -24,7 +28,7 @@ export const protect = async (
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET!
+      process.env.ACCESS_TOKEN_SECRET || "access_secret"
     ) as JwtPayload;
 
     // Route through the repository — never talk to the Mongoose model directly
@@ -39,7 +43,7 @@ export const protect = async (
     }
 
     req.user = {
-      id: user.id.toString(),
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
     };

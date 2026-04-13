@@ -6,33 +6,27 @@ export class UserRepository extends BaseRepository<IUser> {
     super(User);
   }
 
-  // Find user by email (password field excluded by default via schema select:false)
   async findByEmail(email: string): Promise<IUser | null> {
     return await User.findOne({ email });
   }
 
-  // Find user by email and explicitly include the password field for login verification
   async findByEmailWithPassword(email: string): Promise<IUser | null> {
     return await User.findOne({ email }).select("+password");
   }
 
-  // Find user by ID and exclude password from result
   async findByIdSafe(id: string): Promise<IUser | null> {
     return await User.findById(id).select("-password");
   }
 
-  // Check if an email is already registered
   async emailExists(email: string): Promise<boolean> {
     const user = await User.findOne({ email }).select("_id").lean();
     return user !== null;
   }
 
-  // Find user by their Google OAuth sub ID
   async findByGoogleId(googleId: string): Promise<IUser | null> {
     return await User.findOne({ googleId });
   }
 
-  // Link a Google OAuth ID to an existing user account
   async linkGoogleId(userId: string, googleId: string): Promise<IUser | null> {
     return await User.findByIdAndUpdate(
       userId,
@@ -41,12 +35,10 @@ export class UserRepository extends BaseRepository<IUser> {
     );
   }
 
-  // Get users by role
   async findByRole(role: string): Promise<IUser[]> {
     return await User.find({ role });
   }
 
-  // Update profile fields
   async updateProfile(
     userId: string,
     data: { name?: string; email?: string }
@@ -56,6 +48,30 @@ export class UserRepository extends BaseRepository<IUser> {
       { $set: data },
       { new: true, runValidators: true }
     );
+  }
+
+  async updateOTP(email: string, otp: string, otpExpires: Date): Promise<IUser | null> {
+    return await User.findOneAndUpdate(
+      { email },
+      { $set: { otp, otpExpires } },
+      { new: true }
+    );
+  }
+
+  async verifyUser(email: string): Promise<IUser | null> {
+    return await User.findOneAndUpdate(
+      { email },
+      { $set: { isVerified: true }, $unset: { otp: 1, otpExpires: 1 } },
+      { new: true }
+    );
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
+    await User.findByIdAndUpdate(userId, { $set: { refreshToken } });
+  }
+
+  async findByRefreshToken(refreshToken: string): Promise<IUser | null> {
+    return await User.findOne({ refreshToken });
   }
 }
 

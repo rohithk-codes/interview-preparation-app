@@ -1,22 +1,19 @@
-
 import { Response } from "express";
 
+export const setRefreshTokenCookie = (res: Response, token: string) => {
+  res.cookie("refreshToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
 
-  export const setAuthCookie = (res: Response, token: string) => {
-    res.cookie('auth_token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      
-    });
-  }
+export const clearAuthCookies = (res: Response) => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+};
 
-  export const clearAuthCookie = (res: Response) => {
-    res.clearCookie('auth_token', {
-      httpOnly: true,
-    secure: false,
-      sameSite: 'lax',
-      
-    });
-  }

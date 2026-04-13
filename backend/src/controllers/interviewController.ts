@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import interviewService from '../services/interview.service';
+import { getSingleValue } from '../utils/request';
 
 class InterviewController {
   startSession = async (req: Request, res: Response): Promise<void> => {
@@ -74,7 +75,16 @@ class InterviewController {
 
   getCurrentQuestion = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { sessionId } = req.params;
+      const sessionId = getSingleValue(req.params.sessionId);
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          message: 'Session ID is required'
+        });
+        return;
+      }
+
       const question = await interviewService.getCurrentQuestion(sessionId);
 
       res.status(200).json({
@@ -93,7 +103,16 @@ class InterviewController {
 
   getSession = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { sessionId } = req.params;
+      const sessionId = getSingleValue(req.params.sessionId);
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          message: 'Session ID is required'
+        });
+        return;
+      }
+
       const session = await interviewService.getSession(sessionId);
 
       res.status(200).json({
@@ -153,7 +172,16 @@ class InterviewController {
 
   abandonSession = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { sessionId } = req.params;
+      const sessionId = getSingleValue(req.params.sessionId);
+
+      if (!sessionId) {
+        res.status(400).json({
+          success: false,
+          message: 'Session ID is required'
+        });
+        return;
+      }
+
       await interviewService.abandonSession(sessionId);
 
       res.status(200).json({

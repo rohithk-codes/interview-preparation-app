@@ -1,8 +1,9 @@
-import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import userRepository from "../repositories/user.repository";
 import { IUser } from "../models/User";
+import userRepository from "../repositories/user.repository";
+import emailService from "../utils/emailService";
 
 export interface SignupDTO {
   name: string;
@@ -21,8 +22,10 @@ export interface AuthResponse {
     name: string;
     email: string;
     role: string;
+    isVerified: boolean;
   };
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export class AuthService {
@@ -32,46 +35,115 @@ export class AuthService {
     this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   }
 
-  // ─── Private Helpers ───────────────────────────────────────────────────────
-
-  private generateToken(userId: string): string {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
-      expiresIn: "7d",
-    });
+  private generateAccessToken(userId: string): string {
+    return jwt.sign(
+      { id: userId },
+      process.env.ACCESS_TOKEN_SECRET || "access_secret",
+      { expiresIn: "15m" }
+    );
   }
 
-  private formatUserResponse(user: IUser): AuthResponse["user"] {
+  private generateRefreshToken(userId: string): string {
+    return jwt.sign(
+      { id: userId },
+      process.env.REFRESH_TOKEN_SECRET || "refresh_secret",
+      { expiresIn: "7d" }
+    );
+  }
+
+  private formatUser(user: IUser): AuthResponse["user"] {
     return {
-      id: user.id.toString(),
+      id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
+      isVerified: user.isVerified || false,
     };
   }
 
-  // ─── Public Methods ────────────────────────────────────────────────────────
+  private generateOTP(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
-  async signup(data: SignupDTO): Promise<AuthResponse> {
+  private async createSession(user: IUser): Promise<AuthResponse> {
+    const accessToken = this.generateAccessToken(user._id.toString());
+    const refreshToken = this.generateRefreshToken(user._id.toString());
+
+    await userRepository.updateRefreshToken(user._id.toString(), refreshToken);
+
+    return {
+      user: this.formatUser(user),
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async signup(data: SignupDTO): Promise<{ message: string }> {
     const exists = await userRepository.emailExists(data.email);
     if (exists) {
       throw new Error("User already exists with this email");
     }
 
-    const user = await userRepository.create({
+    const otp = this.generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await userRepository.create({
       name: data.name,
       email: data.email,
       password: data.password,
-    });
+      otp,
+      otpExpires,
+      isVerified: false,
+    } as IUser);
 
-    const token = this.generateToken(user.id.toString());
+    try {
+      await emailService.sendOTP(data.email, otp);
+    } catch (error) {
+      console.error("Failed to send OTP email:", error);
+    }
 
-    return { user: this.formatUserResponse(user), token };
+    return { message: "OTP sent to your email. Please verify." };
+  }
+
+  async verifyOTP(email: string, otp: string): Promise<AuthResponse> {
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    const verifiedUser = await userRepository.verifyUser(email);
+    if (!verifiedUser) {
+      throw new Error("Failed to verify user");
+    }
+
+    return this.createSession(verifiedUser);
+  }
+
+  async resendOTP(email: string): Promise<{ message: string }> {
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.isVerified) {
+      throw new Error("User is already verified");
+    }
+
+    const otp = this.generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await userRepository.updateOTP(email, otp, otpExpires);
+    await emailService.sendOTP(email, otp);
+
+    return { message: "OTP resent successfully" };
   }
 
   async login(data: LoginDTO): Promise<AuthResponse> {
-    // Must use findByEmailWithPassword to get the hashed password for comparison
     const user = await userRepository.findByEmailWithPassword(data.email);
-
     if (!user) {
       throw new Error("Invalid credentials");
     }
@@ -81,20 +153,56 @@ export class AuthService {
       throw new Error("Invalid credentials");
     }
 
-    const token = this.generateToken(user.id.toString());
+    if (!user.isVerified) {
+      throw new Error("Please verify your email first");
+    }
 
-    return { user: this.formatUserResponse(user), token };
+    return this.createSession(user);
+  }
+
+  async refresh(token: string): Promise<AuthResponse> {
+    let decoded: { id: string };
+
+    try {
+      decoded = jwt.verify(
+        token,
+        process.env.REFRESH_TOKEN_SECRET || "refresh_secret"
+      ) as { id: string };
+    } catch {
+      throw new Error("Invalid or expired refresh token");
+    }
+
+    const user = await userRepository.findByRefreshToken(token);
+    if (!user || user._id.toString() !== decoded.id) {
+      throw new Error("Invalid or expired refresh token");
+    }
+
+    return this.createSession(user);
+  }
+
+  async logout(userId: string): Promise<void> {
+    await userRepository.updateRefreshToken(userId, null);
+  }
+
+  async logoutByRefreshToken(token?: string): Promise<void> {
+    if (!token) {
+      return;
+    }
+
+    const user = await userRepository.findByRefreshToken(token);
+    if (user) {
+      await this.logout(user._id.toString());
+    }
   }
 
   async googleLogin(credential: string): Promise<AuthResponse> {
-    // Verify the Google token — this is business logic, belongs in the service
     const ticket = await this.googleClient.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
+    if (!payload || !payload.email || !payload.sub) {
       throw new Error("Invalid Google token");
     }
 
@@ -103,17 +211,10 @@ export class AuthService {
     let user = await userRepository.findByEmail(email);
 
     if (user) {
-      // Existing user — link their Google ID if not already linked
-      // Use the repository's linkGoogleId instead of calling user.save() directly
       if (!user.googleId) {
-        user = (await userRepository.linkGoogleId(
-          user.id.toString(),
-          googleId!
-        )) as IUser;
+        user = await userRepository.linkGoogleId(user._id.toString(), googleId);
       }
     } else {
-      // New user via Google — generate a cryptographically secure random password
-      // (required by schema; they'll authenticate via Google, never this password)
       const randomPassword = crypto.randomBytes(32).toString("hex");
 
       user = await userRepository.create({
@@ -122,12 +223,15 @@ export class AuthService {
         password: randomPassword,
         role: "user",
         googleId,
-      } as any);
+        isVerified: true,
+      } as IUser);
     }
 
-    const token = this.generateToken(user!.id.toString());
+    if (!user) {
+      throw new Error("Google login failed");
+    }
 
-    return { user: this.formatUserResponse(user!), token };
+    return this.createSession(user);
   }
 
   async getUserById(userId: string): Promise<AuthResponse["user"]> {
@@ -135,17 +239,8 @@ export class AuthService {
     if (!user) {
       throw new Error("User not found");
     }
-    return this.formatUserResponse(user);
-  }
 
-  verifyToken(token: string): { id: string } {
-    try {
-      return jwt.verify(token, process.env.JWT_SECRET as string) as {
-        id: string;
-      };
-    } catch {
-      throw new Error("Invalid or expired token");
-    }
+    return this.formatUser(user);
   }
 }
 

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import questionService from "../services/question.service";
+import { getSingleValue } from "../utils/request";
 
 class QuestionController {
   getAllQuestions = async (req: Request, res: Response): Promise<void> => {
@@ -39,7 +40,16 @@ class QuestionController {
 
   getQuestionById = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params;
+      const id = getSingleValue(req.params.id);
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: "Question ID is required",
+        });
+        return;
+      }
+
       const question = await questionService.getQuestionById(id);
 
       res.status(200).json({
@@ -94,8 +104,18 @@ class QuestionController {
 
   updateQuestion = async (req: Request, res: Response): Promise<void> => {
     try {
+      const id = getSingleValue(req.params.id);
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: "Question ID is required",
+        });
+        return;
+      }
+
       const updatedQuestion = await questionService.updateQuestion(
-        req.params.id,
+        id,
         req.body
       );
 
@@ -128,7 +148,17 @@ class QuestionController {
 
   deleteQuestion = async (req: Request, res: Response): Promise<void> => {
     try {
-      await questionService.deleteQuestion(req.params.id);
+      const id = getSingleValue(req.params.id);
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: "Question ID is required",
+        });
+        return;
+      }
+
+      await questionService.deleteQuestion(id);
 
       res.status(200).json({
         success: true,

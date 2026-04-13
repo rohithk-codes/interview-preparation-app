@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import submissionService from "../services/submission.service";
+import { getSingleValue } from "../utils/request";
 
 class SubmissionController {
   submitCode = async (req: Request, res: Response): Promise<void> => {
@@ -92,7 +93,16 @@ class SubmissionController {
     res: Response
   ): Promise<void> => {
     try {
-      const { questionId } = req.params;
+      const questionId = getSingleValue(req.params.questionId);
+
+      if (!questionId) {
+        res.status(400).json({
+          success: false,
+          message: "Question ID is required",
+        });
+        return;
+      }
+
       const submissions = await submissionService.getUserQuestionSubmissions(
         req.user!.id,
         questionId
@@ -115,7 +125,17 @@ class SubmissionController {
 
   getSubmissionById = async (req: Request, res: Response): Promise<void> => {
     try {
-      const submission = await submissionService.getSubmissionById(req.params.id);
+      const id = getSingleValue(req.params.id);
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: "Submission ID is required",
+        });
+        return;
+      }
+
+      const submission = await submissionService.getSubmissionById(id);
 
       // Business logic: check if user is authorized to view this submission
       // Note: In a very strict repository pattern, this might be in the service layer
@@ -186,7 +206,16 @@ class SubmissionController {
 
   checkQuestionSolved = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { questionId } = req.params;
+      const questionId = getSingleValue(req.params.questionId);
+
+      if (!questionId) {
+        res.status(400).json({
+          success: false,
+          message: "Question ID is required",
+        });
+        return;
+      }
+
       const solved = await submissionService.hasUserSolvedQuestion(
         req.user!.id,
         questionId

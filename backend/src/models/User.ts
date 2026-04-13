@@ -2,11 +2,16 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
+ 
   name: string;
   email: string;
   password: string;
   role: "user" | "admin";
   googleId?: string;
+  otp?: string;
+  otpExpires?: Date;
+  isVerified: boolean;
+  refreshToken?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -30,11 +35,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       minlength: [8, "Password must be at least 8 characters"],
+      select: false,
     },
     role: {
       type: String,
       enum: ["user", "admin"],
-      required: true,
       default: "user",
     },
     googleId: {
@@ -42,23 +47,32 @@ const userSchema = new Schema<IUser>(
       unique: true,
       sparse: true,
     },
+    otp: {
+      type: String,
+    },
+    otpExpires: {
+      type: Date,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    refreshToken: {
+      type: String,
+      select: false,
+    },
   },
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   // Only hash if password is modified
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error: any) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 userSchema.methods.comparePassword = async function (
